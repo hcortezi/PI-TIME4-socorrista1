@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "280121662542",
+    "project_id": "socorrista-42289",
+    "storage_bucket": "socorrista-42289.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280121662542:android:6b00f9051b4f35f54af71f",
+        "android_client_info": {
+          "package_name": "com.example.socorrista1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "280121662542-i43n3rkquihmirp96r1mr9u3scnkch8n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqY9FRrSXaUv-V_JWn4ox1K7G8KAyL-WA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "280121662542-i43n3rkquihmirp96r1mr9u3scnkch8n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
