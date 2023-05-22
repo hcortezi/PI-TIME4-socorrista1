@@ -9,7 +9,7 @@ class hist extends StatelessWidget {
       title: "main",
       home: Scaffold(
           appBar: AppBar(title: const Text('Histórico de Atendimentos'),
-          centerTitle: true,
+            centerTitle: true,
           ),
           body: Center(
             child: ElevatedButton(
