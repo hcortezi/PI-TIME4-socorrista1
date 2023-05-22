@@ -8,7 +8,9 @@ class classific extends StatelessWidget {
     return MaterialApp(
       title: "main",
       home: Scaffold(
-          appBar: AppBar(title: const Text('Classificar Atendimento')),
+          appBar: AppBar(title: const Text('Classificar Atendimento'),
+          centerTitle: true,
+          ),
           body: Center(
             child: ElevatedButton(
               onPressed: (){

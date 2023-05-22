@@ -8,7 +8,9 @@ class hist extends StatelessWidget {
     return MaterialApp(
       title: "main",
       home: Scaffold(
-          appBar: AppBar(title: const Text('Histórico de Atendimentos')),
+          appBar: AppBar(title: const Text('Histórico de Atendimentos'),
+          centerTitle: true,
+          ),
           body: Center(
             child: ElevatedButton(
               onPressed: (){

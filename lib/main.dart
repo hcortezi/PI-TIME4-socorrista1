@@ -20,6 +20,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget> [
           Container(
             padding: const EdgeInsets.all(30),
@@ -53,58 +55,76 @@ class MyApp extends StatelessWidget {
             ),
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const chat()),
-                  );
-                },
-                icon: const Icon(
-                  Icons.message,
+              SizedBox(
+                height: 90,
+                width: 150,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const chat()),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.message,
+                  ),
+                  label: const Text('Chat'),
                 ),
-                label: const Text('Chat'),
               ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const consults()),
-                  );
-                },
-                icon: const Icon(
-                  Icons.message,
+              SizedBox(
+                height: 90,
+                width: 150,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const consults()),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.location_on,
+                  ),
+                  label: const Text('Consultórios próximos'),
                 ),
-                label: const Text('Consultórios próximos'),
               ),
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const classific()),
-                  );
-                },
-                icon: const Icon(
-                  Icons.star_rate,
+              SizedBox(
+                height: 90,
+                width: 150,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const classific()),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.star_rate,
+                  ),
+                  label: const Text('Classificar atendimento'),
                 ),
-                label: const Text('Classificar atendimento'),
               ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const hist()),
-                  );
-                },
-                icon: const Icon(
-                  Icons.menu_book,
+              SizedBox(
+                height: 90,
+                width: 150,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const hist()),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.menu_book,
+                  ),
+                  label: const Text('Histórico de atendimento'),
                 ),
-                label: const Text('Histórico de atendimento'),
               ),
             ],
           )

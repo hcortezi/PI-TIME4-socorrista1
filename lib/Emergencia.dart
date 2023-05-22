@@ -8,7 +8,9 @@ class Emergencia extends StatelessWidget {
     return MaterialApp(
       title: "main",
       home: Scaffold(
-        appBar: AppBar(title: const Text('Página emergência')),
+        appBar: AppBar(title: const Text('Página emergência'),
+        centerTitle: true,
+        ),
         body: Center(
           child: ElevatedButton(
             onPressed: (){

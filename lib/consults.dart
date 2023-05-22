@@ -8,7 +8,9 @@ class consults extends StatelessWidget {
     return MaterialApp(
       title: "main",
       home: Scaffold(
-          appBar: AppBar(title: const Text('Consultórios próximos')),
+          appBar: AppBar(title: const Text('Consultórios próximos'),
+          centerTitle: true,
+          ),
           body: Center(
             child: ElevatedButton(
               onPressed: (){

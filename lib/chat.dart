@@ -8,7 +8,9 @@ class chat extends StatelessWidget {
     return MaterialApp(
       title: "main",
       home: Scaffold(
-          appBar: AppBar(title: const Text('Chat')),
+          appBar: AppBar(title: const Text('Chat'),
+          centerTitle: true,
+          ),
           body: Center(
             child: ElevatedButton(
               onPressed: (){
