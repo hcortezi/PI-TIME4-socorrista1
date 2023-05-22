@@ -9,7 +9,7 @@ import 'package:socorrista1/ImageStoreMethods.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(Emergencia());
+  runApp(const Emergencia());
 }
 
 class Emergencia extends StatefulWidget {
@@ -62,11 +62,11 @@ class _EmergenciaState extends State<Emergencia> {
         context: context,
         builder: (context) {
           return SimpleDialog(
-            title: Text('Selecionar imagem'),
+            title: const Text('Selecionar imagem'),
             children: [
               SimpleDialogOption(
-                padding: EdgeInsets.all(20),
-                child: Text('Tirar foto'),
+                padding: const EdgeInsets.all(20),
+                child: const Text('Tirar foto'),
                 onPressed: () async {
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(
@@ -78,8 +78,8 @@ class _EmergenciaState extends State<Emergencia> {
                 },
               ),
               SimpleDialogOption(
-                padding: EdgeInsets.all(20),
-                child: Text('Escolher da foto da galeria'),
+                padding: const EdgeInsets.all(20),
+                child: const Text('Escolher da foto da galeria'),
                 onPressed: () async{
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(
@@ -91,8 +91,8 @@ class _EmergenciaState extends State<Emergencia> {
                 },
               ),
               SimpleDialogOption(
-                padding: EdgeInsets.all(20),
-                child: Text('Cancelar'),
+                padding: const EdgeInsets.all(20),
+                child: const Text('Cancelar'),
                 onPressed: (){
                   Navigator.of(context).pop();
                 },
@@ -181,7 +181,7 @@ class _EmergenciaState extends State<Emergencia> {
                               ),
                             ),
                           ),
-                          ElevatedButton(onPressed: postImage, child: Text('Postar'))
+                          ElevatedButton(onPressed: postImage, child: const Text('Postar'))
                         ],
                       )
                     ],
