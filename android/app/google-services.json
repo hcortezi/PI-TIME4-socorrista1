@@ -1,34 +1,113 @@
 {
   "project_info": {
-    "project_number": "280121662542",
-    "project_id": "socorrista-42289",
-    "storage_bucket": "socorrista-42289.appspot.com"
+    "project_number": "56010970512",
+    "project_id": "projetotime4",
+    "storage_bucket": "projetotime4.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:280121662542:android:6b00f9051b4f35f54af71f",
+        "mobilesdk_app_id": "1:56010970512:android:f112229c69c8f900550f15",
         "android_client_info": {
-          "package_name": "com.example.socorrista1"
+          "package_name": "com.dijonz.projeto_grupo4"
         }
       },
       "oauth_client": [
         {
-          "client_id": "280121662542-i43n3rkquihmirp96r1mr9u3scnkch8n.apps.googleusercontent.com",
+          "client_id": "56010970512-7sru6t5hlmh27lsn95fvl0l3asak2om3.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAqY9FRrSXaUv-V_JWn4ox1K7G8KAyL-WA"
+          "current_key": "AIzaSyAvpCd8k30v-dy9hhNiuywCpqcr7IEsMdM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "280121662542-i43n3rkquihmirp96r1mr9u3scnkch8n.apps.googleusercontent.com",
+              "client_id": "56010970512-7sru6t5hlmh27lsn95fvl0l3asak2om3.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "56010970512-2g66vbbll5h38h9j22i6158r1jo8edto.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.projetotime04Flutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56010970512:android:5e8f38bbc836846d550f15",
+        "android_client_info": {
+          "package_name": "com.example.projetotime04_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56010970512-7sru6t5hlmh27lsn95fvl0l3asak2om3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvpCd8k30v-dy9hhNiuywCpqcr7IEsMdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56010970512-7sru6t5hlmh27lsn95fvl0l3asak2om3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "56010970512-2g66vbbll5h38h9j22i6158r1jo8edto.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.projetotime04Flutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56010970512:android:3c8dc1e9653373fd550f15",
+        "android_client_info": {
+          "package_name": "com.example.socorrista1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56010970512-7sru6t5hlmh27lsn95fvl0l3asak2om3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvpCd8k30v-dy9hhNiuywCpqcr7IEsMdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56010970512-7sru6t5hlmh27lsn95fvl0l3asak2om3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "56010970512-2g66vbbll5h38h9j22i6158r1jo8edto.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.projetotime04Flutter"
+              }
             }
           ]
         }

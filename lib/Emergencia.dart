@@ -176,14 +176,20 @@ class _EmergenciaState extends State<Emergencia> {
                             child: TextField(
                               controller: _dadosController,
                               decoration: const InputDecoration(
-                                hintText:'Descrevar problema',
+                                hintText:'Descrever problema',
                                 border: InputBorder.none,
                               ),
                             ),
                           ),
-                          ElevatedButton(onPressed: postImage, child: const Text('Postar'))
+                          ElevatedButton(onPressed: postImage, child: const Text('Enviar'))
                         ],
-                      )
+                      ),
+                      ElevatedButton(
+                        onPressed: (){
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Voltar'),
+                      ),
                     ],
                   )
                 ),
