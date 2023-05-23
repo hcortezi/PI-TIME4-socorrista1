@@ -129,7 +129,7 @@ class _EmergenciaState extends State<Emergencia> {
                 iconSize: 220,
               ),
               const Text(
-                'Adicione a foto do paciente',
+                'Foto do paciente',
                 style: TextStyle(fontSize: 22),
               ),
               Expanded(
