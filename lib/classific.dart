@@ -11,14 +11,21 @@ class classific extends StatelessWidget {
           appBar: AppBar(title: const Text('Classificar Atendimento'),
           centerTitle: true,
           ),
-          body: Center(
-            child: ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-              },
-              child: const Text('Voltar'),
+        body: Column(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child:ElevatedButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Voltar'),
+                ),
+              ),
             ),
-          )
+          ],
+        ),
       ),
     );
   }

@@ -126,17 +126,22 @@ class _EmergenciaState extends State<Emergencia> {
               IconButton(
                 icon: const Icon(Icons.photo),
                 onPressed: () => _imageSelect(context),
-                iconSize: 250,
+                iconSize: 220,
               ),
               const Text(
                 'Adicione a foto do paciente',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 22),
               ),
-              ElevatedButton(
-                onPressed: (){
-                  Navigator.pop(context);
-                  },
-                child: const Text('Voltar'),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child:ElevatedButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                      },
+                    child: const Text('Voltar'),
+                  ),
+                ),
               ),
             ],
           )
@@ -154,8 +159,8 @@ class _EmergenciaState extends State<Emergencia> {
                       ),
                       const Divider(),
                       SizedBox(
-                        height: 300,
-                        width: 300,
+                        height: 200,
+                        width: 200,
                         child: Container(
                           decoration: BoxDecoration(
                             image: DecorationImage(
@@ -172,7 +177,8 @@ class _EmergenciaState extends State<Emergencia> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width*0.35,
+                            width: MediaQuery.of(context).size.width*0.50,
+                            height: MediaQuery.of(context).size.height*0.45,
                             child: TextField(
                               controller: _dadosController,
                               decoration: const InputDecoration(
