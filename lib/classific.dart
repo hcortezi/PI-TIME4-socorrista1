@@ -9,7 +9,7 @@ class classific extends StatelessWidget {
       title: "main",
       home: Scaffold(
           appBar: AppBar(title: const Text('Classificar Atendimento'),
-          centerTitle: true,
+            centerTitle: true,
           ),
         body: Column(
           children: [
