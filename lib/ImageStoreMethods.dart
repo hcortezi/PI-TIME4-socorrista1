@@ -11,7 +11,7 @@ class ImageStoreMethods {
   Future<String> imageToStorage(Uint8List file) async {
     String id = const Uuid().v1();
     Reference ref =
-        _storage.ref().child('imagens').child(id);
+        _storage.ref().child('imagens').child('$id.jpeg');
     UploadTask uploadTask = ref.putData(
       file
     );
@@ -32,7 +32,7 @@ class ImageStoreMethods {
         dataPublicada: DateTime.now(),
         postURL: photoURL,
       );
-      _firestore.collection('emergencias').doc(postID).set(post.toJson(),);
+      _firestore.collection('emergencias').doc('$postID.jpeg').set(post.toJson(),);
       res = 'sucesso';
     } catch (err){
       res = err.toString();
