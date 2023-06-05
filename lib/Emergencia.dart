@@ -22,9 +22,9 @@ class Emergencia extends StatefulWidget {
 class _EmergenciaState extends State<Emergencia> {
 
   Uint8List? _file;
-   TextEditingController _dadosController = TextEditingController();
-   TextEditingController _nomeController = TextEditingController();
-   TextEditingController _telefoneController = TextEditingController();
+  final TextEditingController _dadosController = TextEditingController();
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _telefoneController = TextEditingController();
 
   bool _isLoading = false;
   void postImage() async{
@@ -44,6 +44,7 @@ class _EmergenciaState extends State<Emergencia> {
         });
         showSnackBar('Postado', context);
         clearImage();
+        clearText();
       } else{
         setState(() {
           _isLoading = false;
@@ -61,6 +62,11 @@ class _EmergenciaState extends State<Emergencia> {
     });
   }
 
+  void clearText() {
+    _dadosController.clear();
+    _nomeController.clear();
+    _telefoneController.clear();
+  }
 
   _imageSelect(BuildContext context) async {
     return showDialog(
