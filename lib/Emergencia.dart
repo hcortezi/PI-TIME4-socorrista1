@@ -22,7 +22,9 @@ class Emergencia extends StatefulWidget {
 class _EmergenciaState extends State<Emergencia> {
 
   Uint8List? _file;
-  final TextEditingController _dadosController = TextEditingController();
+   TextEditingController _dadosController = TextEditingController();
+   TextEditingController _nomeController = TextEditingController();
+   TextEditingController _telefoneController = TextEditingController();
 
   bool _isLoading = false;
   void postImage() async{
@@ -32,6 +34,8 @@ class _EmergenciaState extends State<Emergencia> {
     try {
       String res = await ImageStoreMethods().uploadPost(
         _dadosController.text,
+        _nomeController.text,
+        _telefoneController.text,
         _file!
       );
       if (res == 'sucesso'){
@@ -57,12 +61,13 @@ class _EmergenciaState extends State<Emergencia> {
     });
   }
 
+
   _imageSelect(BuildContext context) async {
     return showDialog(
         context: context,
         builder: (context) {
           return SimpleDialog(
-            title: const Text('Selecionar imagem'),
+            title: const Text('Selecionar opção'),
             children: [
               SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
@@ -71,19 +76,6 @@ class _EmergenciaState extends State<Emergencia> {
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(
                     ImageSource.camera,
-                  );
-                  setState(() {
-                    _file = file;
-                  });
-                },
-              ),
-              SimpleDialogOption(
-                padding: const EdgeInsets.all(20),
-                child: const Text('Escolher da foto da galeria'),
-                onPressed: () async{
-                  Navigator.of(context).pop();
-                  Uint8List file = await pickImage(
-                    ImageSource.gallery,
                   );
                   setState(() {
                     _file = file;
@@ -172,13 +164,12 @@ class _EmergenciaState extends State<Emergencia> {
                         ),
                       ),
                       const Divider(),
-                      Row(
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width*0.50,
-                            height: MediaQuery.of(context).size.height*0.45,
+
                             child: TextField(
                               controller: _dadosController,
                               decoration: const InputDecoration(
@@ -187,9 +178,37 @@ class _EmergenciaState extends State<Emergencia> {
                               ),
                             ),
                           ),
-                          ElevatedButton(onPressed: postImage, child: const Text('Enviar'))
+                          const Divider(),
+                          SizedBox(
+                            child: TextField(
+                              controller: _nomeController,
+                              decoration: const InputDecoration(
+                                hintText:'Nome:',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                          SizedBox(
+
+                            child: TextField(
+                              controller: _telefoneController,
+                              decoration: const InputDecoration(
+                                hintText:'Telefone:',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
+                      const Divider(),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                minimumSize: Size(200, 70),
+                                backgroundColor: Colors.red,
+                            ),
+                            onPressed: postImage, child: const Text('Solicitar socorro')),
+                      const Divider(),
                       ElevatedButton(
                         onPressed: (){
                           Navigator.of(context).pop();

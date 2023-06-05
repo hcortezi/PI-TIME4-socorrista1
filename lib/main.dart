@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Emergencia.dart';
-import 'chat.dart';
 import 'classific.dart';
-import 'consults.dart';
 import 'firebase_options.dart';
-import 'hist.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,19 +18,24 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bem vindo ao SOS Dental!'),
-        centerTitle: true,
-      ),
+      backgroundColor: Colors.blueAccent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget> [
+           Text(
+            "Bem vindo ao SOS Dental",
+              textAlign: TextAlign.center,
+              style:GoogleFonts.montserrat(
+                fontSize: 30,
+                color: Colors.white,
+              )
+
+          ),
           Container(
-            padding: const EdgeInsets.all(30),
+            padding: const EdgeInsets.all(60),
             alignment: Alignment.topCenter,
             child:
             ElevatedButton.icon(
@@ -54,49 +57,9 @@ class MyApp extends StatelessWidget {
               label: const Text('Solicitar Emergência'),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                height: 90,
-                width: 150,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const chat()),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.message,
-                  ),
-                  label: const Text('Chat'),
-                ),
-              ),
-              SizedBox(
-                height: 90,
-                width: 150,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const consults()),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.location_on,
-                  ),
-                  label: const Text('Consultórios próximos'),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                height: 90,
-                width: 150,
+          Container(
+            padding: const EdgeInsets.all(60),
+                alignment: Alignment.center,
                 child: ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
@@ -104,30 +67,17 @@ class MyApp extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => const classific()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(80),
+                    backgroundColor: Colors.blueGrey
+                  ),
                   icon: const Icon(
                     Icons.star_rate,
+                    color: Colors.yellow,
                   ),
                   label: const Text('Classificar atendimento'),
                 ),
               ),
-              SizedBox(
-                height: 90,
-                width: 150,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const hist()),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.menu_book,
-                  ),
-                  label: const Text('Histórico de atendimento'),
-                ),
-              ),
-            ],
-          )
         ],
       ),
     );

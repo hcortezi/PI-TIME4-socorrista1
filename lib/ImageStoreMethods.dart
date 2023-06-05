@@ -20,7 +20,7 @@ class ImageStoreMethods {
     return downloadUrl;
   }
 
-  Future<String> uploadPost(String dados, Uint8List file) async{
+  Future<String> uploadPost(String dados, String nome, String telefone, Uint8List file) async{
     String res = 'Ocorreu um erro';
     try {
       String photoURL =
@@ -28,6 +28,8 @@ class ImageStoreMethods {
       String postID = const Uuid().v1();
       Post post = Post(
         dados: dados,
+        nome: nome,
+        telefone: telefone,
         postID: postID,
         dataPublicada: DateTime.now(),
         postURL: photoURL,
