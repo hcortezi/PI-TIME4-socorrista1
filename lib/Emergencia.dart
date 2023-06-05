@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:socorrista1/utilitario.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:socorrista1/ImageStoreMethods.dart';
+import 'dent.dart';
 
 
 void main() async {
@@ -213,7 +214,16 @@ class _EmergenciaState extends State<Emergencia> {
                                 minimumSize: Size(200, 70),
                                 backgroundColor: Colors.red,
                             ),
-                            onPressed: postImage, child: const Text('Solicitar socorro')),
+                            onPressed:(){
+                              postImage();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const dent()),
+                              );
+                            },
+                          child: const Text('Solicitar socorro'),
+                        ),
+                            // onPressed: postImage, child: const Text('Solicitar socorro')),
                       const Divider(),
                       ElevatedButton(
                         onPressed: (){
