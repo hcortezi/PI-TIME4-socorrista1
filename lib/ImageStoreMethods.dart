@@ -33,6 +33,7 @@ class ImageStoreMethods {
         postID: postID,
         dataPublicada: DateTime.now(),
         postURL: photoURL,
+        status: false,
       );
       _firestore.collection('emergencias').doc(postID).set(post.toJson(),);
       res = 'sucesso';

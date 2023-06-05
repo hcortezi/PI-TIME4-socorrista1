@@ -213,14 +213,16 @@ class _EmergenciaState extends State<Emergencia> {
                       const Divider(),
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                minimumSize: Size(200, 70),
+                                minimumSize: const Size(200, 70),
                                 backgroundColor: Colors.red,
                             ),
                             onPressed:() async{
-                              await postImage().whenComplete(()=>Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const dent()),
-                              ));
+                              if((_nomeController.text.isNotEmpty)&&(_telefoneController.text.isNotEmpty)&&(_dadosController.text.isNotEmpty)){
+                                await postImage().whenComplete(()=>Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const dent()),
+                                ));
+                              }
                             },
                           child: const Text('Solicitar socorro'),
                         ),

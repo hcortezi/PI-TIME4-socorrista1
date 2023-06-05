@@ -4,6 +4,7 @@ class Post {
   final String telefone;
   final String postID;
   final dataPublicada;
+  final status;
   final String postURL;
 
   const Post({
@@ -12,6 +13,7 @@ class Post {
     required this.telefone,
     required this.postID,
     required this.dataPublicada,
+    required this.status,
     required this.postURL,
   });
 
@@ -21,6 +23,7 @@ class Post {
     "telefone": telefone,
     "postID": postID,
     "dataPublicada": dataPublicada,
+    "status": status,
     "postURL": postURL,
   };
 }
