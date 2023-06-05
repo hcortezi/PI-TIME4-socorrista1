@@ -28,7 +28,8 @@ class _EmergenciaState extends State<Emergencia> {
   final TextEditingController _telefoneController = TextEditingController();
 
   bool _isLoading = false;
-  void postImage() async{
+  Future<String> postImage() async{
+    String res = "";
     setState(() {
       _isLoading = true;
     });
@@ -43,18 +44,19 @@ class _EmergenciaState extends State<Emergencia> {
         setState(() {
           _isLoading = false;
         });
-        showSnackBar('Postado', context);
+        showSnackBar('Postado', dent as BuildContext);
         clearImage();
         clearText();
       } else{
         setState(() {
           _isLoading = false;
         });
-        showSnackBar(res, context);
+        showSnackBar(res, Emergencia as BuildContext);
       }
     } catch (err){
-      showSnackBar(err.toString(), context);
+      showSnackBar(err.toString(), Emergencia as BuildContext);
     }
+    return res;
   }
 
   void clearImage(){
@@ -214,12 +216,11 @@ class _EmergenciaState extends State<Emergencia> {
                                 minimumSize: Size(200, 70),
                                 backgroundColor: Colors.red,
                             ),
-                            onPressed:(){
-                              postImage();
-                              Navigator.push(
+                            onPressed:() async{
+                              await postImage().whenComplete(()=>Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const dent()),
-                              );
+                              ));
                             },
                           child: const Text('Solicitar socorro'),
                         ),
