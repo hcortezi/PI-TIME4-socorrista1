@@ -223,6 +223,9 @@ class _EmergenciaState extends State<Emergencia> {
                                   MaterialPageRoute(builder: (context) => const dent()),
                                 ));
                               }
+                              else{
+                                showSnackBar("Insira as informações", context);
+                              }
                             },
                           child: const Text('Solicitar socorro'),
                         ),
