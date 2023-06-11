@@ -26,11 +26,15 @@ class ImageStoreMethods {
   }
 
   Future<String> uploadPost(String dados, String nome, String telefone, Uint8List file) async{
+    UserCredential userCredential = await auth.signInAnonymously();
+    User? user = userCredential.user;
+    String uid = user!.uid;
+    String id = const Uuid().v4();
     String res = 'Ocorreu um erro';
     try {
       String photoURL =
       await imageToStorage(file);
-      String postID = const Uuid().v4();
+      String postID = id;
       Post post = Post(
         dados: dados,
         nome: nome,
@@ -40,7 +44,7 @@ class ImageStoreMethods {
         postURL: photoURL,
         status: false,
       );
-      _firestore.collection('emergencias').doc().set(post.toJson(),);
+      _firestore.collection('emergencias').doc(uid).set(post.toJson(),);
       res = 'sucesso';
     } catch (err){
       res = err.toString();
