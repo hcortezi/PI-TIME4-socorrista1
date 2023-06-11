@@ -23,6 +23,7 @@ class Emergencia extends StatefulWidget {
 class _EmergenciaState extends State<Emergencia> {
 
   Uint8List? _file;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _dadosController = TextEditingController();
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _telefoneController = TextEditingController();
@@ -107,6 +108,7 @@ class _EmergenciaState extends State<Emergencia> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: "main",
+        key: _scaffoldKey,
         home: Scaffold(
           appBar: AppBar(title: const Text('Página emergência'),
             centerTitle: true,
@@ -224,6 +226,7 @@ class _EmergenciaState extends State<Emergencia> {
                                 ));
                               }
                               else{
+
                                 showSnackBar("Insira as informações", context);
                               }
                             },
