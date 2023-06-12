@@ -23,6 +23,7 @@ class _dentState extends State<dent>{
 //   Future<List<String>> abada(String id) async{
 //     FirebaseFirestore.instance.collection('emergencias').where(id).get();
 // }
+
   Future<List<String>> getArrayFromFirestore() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     UserCredential userCredential = await auth.signInAnonymously();
@@ -68,6 +69,42 @@ class _dentState extends State<dent>{
     List<String> firestoreArray = await getArrayFromFirestore();
     return firestoreArray; // or use the list as required
   }
+
+  Future<Map<String, dynamic>> searchAndRetrieveFieldsInFirestore() async {
+    Map<String, dynamic> matchingDocuments = {};
+    String field = 'uid';
+    List<String> searchValues = fetchFirestoreArray();
+    List<String> fieldsToRetrieve = ['nome'];
+
+    // Reference to your collection
+    CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
+
+    QuerySnapshot querySnapshot = await collectionRef.where(field, whereIn: searchValues).get();
+
+    for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> retrievedFields = {};
+      for (String field in fieldsToRetrieve) {
+        retrievedFields[field] = docSnapshot.get(field);
+      }
+      matchingDocuments[docSnapshot.id] = retrievedFields;
+      print(matchingDocuments);
+    }
+
+    return matchingDocuments;
+  }
+
+  void searchAndRetrieveSpecificFields() async {
+    Map<String, dynamic> matchingDocuments = await searchAndRetrieveFieldsInFirestore();
+    // Use the matchingDocuments map as required
+    matchingDocuments.forEach((documentId, retrievedFields) {
+      print('Document ID: $documentId');
+      print('Retrieved Fields: $retrievedFields');
+      print('---------------');
+    });
+  }
+
+
+
 
   // Future<List<String>> getFirestoreArray(String id) async {
   //
