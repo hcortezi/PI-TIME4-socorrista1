@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,6 +22,39 @@ class dent extends StatefulWidget {
 }
 
 class _dentState extends State<dent>{
+
+  Future<List<String>> abada(String id) async{
+    FirebaseFirestore.instance.collection('emergencias').where(id).get();
+}
+
+  Future<List<String>> getFirestoreArray(String id) async {
+
+    List<String> stringList = [];
+
+    FirebaseFirestore.instance
+        .collection('emergencias')
+        .doc(id)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        var myArray = documentSnapshot.data()!['dentistas'];
+
+        if (myArray is List) {
+          for (var item in myArray) {
+            stringList.add(item.toString());
+          }
+          // The stringList now contains the values from the array field
+          print(stringList);
+        }
+      } else {
+        print('Document does not exist!');
+      }
+    }).catchError((error) {
+      print('Error retrieving document: $error');
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
