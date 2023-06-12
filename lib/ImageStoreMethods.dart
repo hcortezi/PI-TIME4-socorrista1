@@ -16,7 +16,7 @@ class ImageStoreMethods {
     String uid = user!.uid;
     String id = const Uuid().v4();
     Reference ref =
-        _storage.ref().child('imagens').child(uid).child('$id.jpeg');
+        _storage.ref().child('imagens').child(uid).child('$uid.jpeg');
     UploadTask uploadTask = ref.putData(
       file
     );
@@ -34,7 +34,7 @@ class ImageStoreMethods {
     try {
       String photoURL =
       await imageToStorage(file);
-      String postID = id;
+      String postID = uid;
       Post post = Post(
         dados: dados,
         nome: nome,
