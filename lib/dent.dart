@@ -23,67 +23,42 @@ class DentWidget extends StatefulWidget {
 }
 
 class _DentWidgetState extends State<DentWidget> {
-  late Future<List<String>> fetchDataFuture;
-
-  Future<List<String>> fetchDentistasFromFirebase() async {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    UserCredential userCredential = await auth.signInAnonymously();
-    User? user = userCredential.user;
-    String uid = user!.uid;
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance
-        .collection('emergencias')
-        .doc(uid)
-        .get();
-    Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-    List<String> dentistas = [];
-    if (data != null && data.containsKey('dentistas')) {
-      List<dynamic> dentistasArray = data['dentistas'];
-      dentistas.addAll(dentistasArray.map((item) => item.toString()));
-    }
-    return dentistas;
-  }
-
-  Future<List<String>> fetchNamesFromFirebase(List<String> dentistas) async {
-    if (dentistas.isEmpty) {
-      return [];
-    }
-
-    List<String> names = [];
-
-    try {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('uid', whereIn: dentistas)
-          .get();
-
-      for (var doc in snapshot.docs) {
-        Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-        if (data != null && data.containsKey('nome')) {
-          String name = data['nome'];
-          names.add(name);
-        }
-      }
-    } catch (error) {
-      print('Error fetching names: $error');
-    }
-
-    return names;
-  }
+  Stream<List<String>>? fetchDataStream;
 
   @override
   void initState() {
     super.initState();
-    fetchDataFuture = fetchDentistasFromFirebase()
-        .then((dentistas) => fetchNamesFromFirebase(dentistas))
-        .catchError((error) {
-      print('Error fetching data: $error');
+    fetchDataStream = fetchDentistasFromFirebase();
+  }
+
+  Stream<List<String>> fetchDentistasFromFirebase() {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+
+    if (user == null) {
+      return Stream.error('User not signed in');
+    }
+
+    String uid = user.uid;
+
+    return FirebaseFirestore.instance
+        .collection('emergencias')
+        .doc(uid)
+        .snapshots()
+        .map((snapshot) {
+      Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('dentistas')) {
+        List<dynamic> dentistasArray = data['dentistas'];
+        return dentistasArray.map((item) => item.toString()).toList();
+      }
+      return [];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: fetchDataFuture,
+    return StreamBuilder<List<String>>(
+      stream: fetchDataStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -95,14 +70,20 @@ class _DentWidgetState extends State<DentWidget> {
           );
         } else if (snapshot.hasData) {
           List<String> nomes = snapshot.data!;
-          return ListView.builder(
-            itemCount: nomes.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text("Dentista: ${nomes[index]}"),
-              );
-            },
-          );
+          if (nomes.isEmpty) {
+            return Center(
+              child: Text('No Data'),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: nomes.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text("Dentista: ${nomes[index]}"),
+                );
+              },
+            );
+          }
         } else {
           return Center(
             child: Text('No Data'),
@@ -114,6 +95,5 @@ class _DentWidgetState extends State<DentWidget> {
 }
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(Dent());
 }
