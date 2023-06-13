@@ -119,11 +119,7 @@ class _DentWidgetState extends State<DentWidget> {
 class DentistDetailsScreen extends StatelessWidget {
   final String uid;
 
-
-
-  const DentistDetailsScreen({super.key, required this.uid});
-
-
+  const DentistDetailsScreen({Key? key, required this.uid});
 
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -150,26 +146,27 @@ class DentistDetailsScreen extends StatelessWidget {
       FirebaseFirestore.instance
           .collection('emergencias')
           .doc(uidE)
-          .update({'dentistas': uidD}).then((value){
+          .update({'dentistas': uidD}).then((value) {
         print('Emergencia atualizada com sucesso');
-      }).catchError((error){print('Erro ao definir dentista');});
+      }).catchError((error) {
+        print('Erro ao definir dentista');
+      });
     }).catchError((error) {
       print('Erro no update de status: $error');
     });
   }
 
-  /*Future<String> getCurriculoFromUID(String uid) async {
-     QuerySnapshot snapshot = await FirebaseFirestore.instance
+  Future<String> getCurriculoFromUID(String uid) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('uid', isEqualTo: uid)
         .get();
 
-       String id = snapshot.docs.first.id.toString();
-       DocumentSnapshot doc = await FirebaseFirestore.instance.collection("users").doc(id).get();
-       return doc.get("curriculo").toString();
-
-
-  }*/
+    String id = snapshot.docs.first.id.toString();
+    DocumentSnapshot doc =
+    await FirebaseFirestore.instance.collection("users").doc(id).get();
+    return doc.get("curriculo").toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,33 +179,50 @@ class DentistDetailsScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             String nome = snapshot.data!;
-            return  Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget> [
-                  Text(
-                      "Nome do dentista: $nome",
-                      textAlign: TextAlign.center,
-                      style:GoogleFonts.montserrat(
-                        fontSize: 30,
-                        color: Colors.black,
-                      )
-
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Text(
+                  "Nome do dentista: $nome",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 30,
+                    color: Colors.black,
                   ),
-                  Text(
-                      "Mini currículo: ",
-                      textAlign: TextAlign.center,
-                      style:GoogleFonts.montserrat(
-                        fontSize: 30,
-                        color: Colors.black,
-                      )
-
-                  ),
-                  ElevatedButton(onPressed: (){
+                ),
+                FutureBuilder<String>(
+                  future: getCurriculoFromUID(uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      String curriculo = snapshot.data!;
+                      return Text(
+                        "Mini currículo: $curriculo",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 30,
+                          color: Colors.black,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
                     definirEmergencia(uid);
-                  }, child: const Text("ESCOLHER PROFISSIONAL"))
-
-                ]
-
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EmergenciaAceita(uid: uid),
+                      ),
+                    );
+                  },
+                  child: const Text("ESCOLHER PROFISSIONAL"),
+                ),
+              ],
             );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
@@ -220,6 +234,20 @@ class DentistDetailsScreen extends StatelessWidget {
     );
   }
 }
+
+class EmergenciaAceita extends StatelessWidget {
+  final String uid;
+
+  const EmergenciaAceita({Key? key, required this.uid});
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
+
+}
+
 
 void main() {
   runApp(Dent());
