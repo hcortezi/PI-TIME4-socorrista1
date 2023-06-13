@@ -44,7 +44,7 @@ class _EmergenciaState extends State<Emergencia> {
         setState(() {
           _isLoading = false;
         });
-        showSnackBar('Postado', dent as BuildContext);
+        showSnackBar('Postado', Dent() as BuildContext);
         clearImage();
         clearText();
       } else{
@@ -220,7 +220,7 @@ class _EmergenciaState extends State<Emergencia> {
                               if((_nomeController.text.isNotEmpty)&&(_telefoneController.text.isNotEmpty)&&(_dadosController.text.isNotEmpty)){
                                 await postImage().whenComplete(()=>Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const dent()),
+                                  MaterialPageRoute(builder: (context) => Dent()),
                                 ));
                               }
                               else{

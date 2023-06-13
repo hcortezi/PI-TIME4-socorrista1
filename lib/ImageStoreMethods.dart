@@ -8,15 +8,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 class ImageStoreMethods {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<String> imageToStorage(Uint8List file) async {
-    UserCredential userCredential = await auth.signInAnonymously();
-    User? user = userCredential.user;
-    String uid = user!.uid;
     String id = const Uuid().v4();
     Reference ref =
-        _storage.ref().child('imagens').child(uid).child('$uid.jpeg');
+        _storage.ref().child('imagens').child('$id.jpeg');
     UploadTask uploadTask = ref.putData(
       file
     );
@@ -26,15 +22,15 @@ class ImageStoreMethods {
   }
 
   Future<String> uploadPost(String dados, String nome, String telefone, Uint8List file) async{
-    UserCredential userCredential = await auth.signInAnonymously();
-    User? user = userCredential.user;
-    String uid = user!.uid;
-    String id = const Uuid().v4();
     String res = 'Ocorreu um erro';
     try {
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      UserCredential userCredential = await auth.signInAnonymously();
+      User? user = userCredential.user;
+      String uid = user!.uid;
       String photoURL =
       await imageToStorage(file);
-      String postID = uid;
+      String postID = const Uuid().v4();
       Post post = Post(
         dados: dados,
         nome: nome,

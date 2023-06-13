@@ -1,184 +1,114 @@
-
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/material.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const dent());
-}
-
-class dent extends StatefulWidget {
-  const dent({Key? key}) : super(key: key);
-
+class Dent extends StatelessWidget {
   @override
-  State<dent> createState() => _dentState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Firestore ListView Example',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Firestore ListView Example'),
+        ),
+        body: DentWidget(),
+      ),
+    );
+  }
 }
 
-class _dentState extends State<dent>{
+class DentWidget extends StatefulWidget {
+  @override
+  _DentWidgetState createState() => _DentWidgetState();
+}
 
-//   Future<List<String>> abada(String id) async{
-//     FirebaseFirestore.instance.collection('emergencias').where(id).get();
-// }
+class _DentWidgetState extends State<DentWidget> {
+  late Future<List<String>> fetchDataFuture;
 
-  Future<List<String>> getArrayFromFirestore() async {
+  Future<List<String>> fetchDentistasFromFirebase() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
     String uid = user!.uid;
-    List<String> stringList = [];
-
-    // Reference to your collection and document
-    CollectionReference collectionRef = FirebaseFirestore.instance.collection('emergencias');
-    DocumentSnapshot docSnapshot = await collectionRef.doc(uid).get();
-
-    // Retrieve the array field and convert it to a List<String>
-    List<dynamic> firestoreArray = docSnapshot.get('dentistas');
-    for (var element in firestoreArray) {
-      stringList.add(element.toString());
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('emergencias')
+        .doc(uid)
+        .get();
+    Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+    List<String> dentistas = [];
+    if (data != null && data.containsKey('dentistas')) {
+      List<dynamic> dentistasArray = data['dentistas'];
+      dentistas.addAll(dentistasArray.map((item) => item.toString()));
     }
-
-    return stringList;
+    return dentistas;
   }
 
-  Future<Map<String, dynamic>> retrieveFieldsFromFirestore() async {
-    Map<String, dynamic> fieldsMap = {};
-    var stringList = fetchFirestoreArray();
+  Future<List<String>> fetchNamesFromFirebase(List<String> dentistas) async {
+    if (dentistas.isEmpty) {
+      return [];
+    }
 
-    // Reference to your collection
-    CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
+    List<String> names = [];
 
-    for (String documentName in stringList) {
-      DocumentSnapshot docSnapshot = await collectionRef.doc(documentName).get();
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', whereIn: dentistas)
+        .get();
 
-      if (docSnapshot.exists) {
-        fieldsMap[documentName] = docSnapshot.data();
-      } else {
-        // Handle case when document does not exist
-        fieldsMap[documentName] = null;
+    for (var doc in snapshot.docs) {
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('nome')) {
+        String name = data['nome'];
+        names.add(name);
       }
     }
 
-    return fieldsMap;
+    return names;
   }
 
-  fetchFirestoreArray() async {
-    List<String> firestoreArray = await getArrayFromFirestore();
-    return firestoreArray; // or use the list as required
-  }
-
-  Future<Map<String, dynamic>> searchAndRetrieveFieldsInFirestore() async {
-    Map<String, dynamic> matchingDocuments = {};
-    String field = 'uid';
-    List<String> searchValues = fetchFirestoreArray();
-    List<String> fieldsToRetrieve = ['nome'];
-
-    // Reference to your collection
-    CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
-
-    QuerySnapshot querySnapshot = await collectionRef.where(field, whereIn: searchValues).get();
-
-    for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
-      Map<String, dynamic> retrievedFields = {};
-      for (String field in fieldsToRetrieve) {
-        retrievedFields[field] = docSnapshot.get(field);
-      }
-      matchingDocuments[docSnapshot.id] = retrievedFields;
-      print(matchingDocuments);
-    }
-
-    return matchingDocuments;
-  }
-
-  void searchAndRetrieveSpecificFields() async {
-    Map<String, dynamic> matchingDocuments = await searchAndRetrieveFieldsInFirestore();
-    // Use the matchingDocuments map as required
-    matchingDocuments.forEach((documentId, retrievedFields) {
-      print('Document ID: $documentId');
-      print('Retrieved Fields: $retrievedFields');
-      print('---------------');
+  @override
+  void initState() {
+    super.initState();
+    fetchDataFuture = fetchDentistasFromFirebase()
+        .then((dentistas) => fetchNamesFromFirebase(dentistas))
+        .catchError((error) {
+      print('Error fetching data: $error');
     });
   }
 
-
-
-
-  // Future<List<String>> getFirestoreArray(String id) async {
-  //
-  //   List<String> stringList = [];
-  //
-  //   FirebaseFirestore.instance
-  //       .collection('emergencias')
-  //       .doc(id)
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot) {
-  //     if (documentSnapshot.exists) {
-  //       var myArray = documentSnapshot.data()!['dentistas'];
-  //
-  //       if (myArray is List) {
-  //         for (var item in myArray) {
-  //           stringList.add(item.toString());
-  //         }
-  //         // The stringList now contains the values from the array field
-  //         print(stringList);
-  //       }
-  //     } else {
-  //       print('Document does not exist!');
-  //     }
-  //   }).catchError((error) {
-  //     print('Error retrieving document: $error');
-  //   });
-  // }
-
-
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "dent",
-      home: Scaffold(
-        backgroundColor: Colors.blueAccent,
-        body:Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget> [
-            Text(
-            "Procurando dentistas disponíveis",
-            textAlign: TextAlign.center,
-            style:GoogleFonts.montserrat(
-              fontSize: 30,
-              color: Colors.white,
-            )
-        ),
-        SizedBox(
-          height: 400,
-          child: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('emergencias').snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasData) {
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot ds = snapshot.data!.docs[index];
-                    return ListTile(
-                      title: Text(
-                        ds.get('dentistas'),
-                      ),
-                    );
-                  },
-                );
-              }
-              else {
-                return const CircularProgressIndicator();
-              }
+    return FutureBuilder<List<String>>(
+      future: fetchDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else if (snapshot.hasData) {
+          List<String> nomes = snapshot.data!;
+          return ListView.builder(
+            itemCount: nomes.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text("Dentista: ${nomes[index]}"),
+              );
             },
-          ),
-        ),
-        ],
-      ),
-      ),
+          );
+        } else {
+          return Center(
+            child: Text('No Data'),
+          );
+        }
+      },
     );
   }
+}
+
+void main() {
+  runApp(Dent());
 }
