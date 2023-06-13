@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:socorrista1/LocationData.dart';
 
 
 class Dent extends StatelessWidget {
@@ -290,6 +291,7 @@ class EmergenciaAceita extends StatelessWidget {
     return permissionStatus == PermissionStatus.granted;
   }
 
+
   Future<void> _sendLocationToKotlinApp(BuildContext context) async {
     final bool hasPermission = await requestLocationPermission();
 
@@ -302,7 +304,7 @@ class EmergenciaAceita extends StatelessWidget {
         final FirebaseMessaging messaging = FirebaseMessaging.instance;
         final token = await messaging.getToken();
 
-        final channel = MethodChannel('location_channel');
+        final channel = MethodChannel('default_channel');
         final result = await channel.invokeMethod('sendLocation', {
           'latitude': position.latitude,
           'longitude': position.longitude,
@@ -317,6 +319,55 @@ class EmergenciaAceita extends StatelessWidget {
       print('Location permission denied');
     }
   }
+
+  Future<LocationData> getLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Handle permission denied case
+        throw Exception('Location permission denied');
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      return LocationData(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (e) {
+      // Handle location retrieval error
+      print('Error retrieving location: $e');
+      throw Exception('Error retrieving location: $e');
+    }
+  }
+
+  void sendLocationToKotlin() async {
+    try {
+      LocationData location = await getLocation();
+
+      final FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? fcmToken = await messaging.getToken();
+
+      // Construct a data payload with the location coordinates
+      Map<String, String> data = {
+        'latitude': location.latitude.toString(),
+        'longitude': location.longitude.toString(),
+      };
+
+      // Send the FCM message with the data payload
+      messaging.sendMessage(
+        to: fcmToken,
+        data: data,
+      );
+
+      print('Location sent to Kotlin app');
+    } catch (e) {
+      // Handle error retrieving location or sending FCM
+      print('Error: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -387,7 +438,7 @@ class EmergenciaAceita extends StatelessWidget {
                   },
                 ),
                 ElevatedButton(
-                  onPressed: () => _sendLocationToKotlinApp(context),
+                  onPressed: () => sendLocationToKotlin(),
                   child: const Text("Enviar Localização", textAlign: TextAlign.center,),
                 ),
               ],
