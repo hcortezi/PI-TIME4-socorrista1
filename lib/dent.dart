@@ -341,7 +341,7 @@ class EmergenciaAceita extends StatelessWidget {
                           ),),
                       );
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+                      return Text('Error  : ${snapshot.error}');
                     } else {
                       return const CircularProgressIndicator();
                     }
