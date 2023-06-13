@@ -15,7 +15,7 @@ class ImageStoreMethods {
   Future<String> imageToStorage(Uint8List file) async {
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
-    String uid = user!.uid.toString();
+    String uid = user!.uid;
     String id = const Uuid().v4();
     Reference ref =
         _storage.ref().child('imagens').child('$uid.jpeg');

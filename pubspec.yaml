@@ -45,7 +45,10 @@ dependencies:
   uuid: ^3.0.6
   google_fonts:
   firebase_auth: ^4.6.2
-  firebase_messaging: ^14.6.2
+  firebase_messaging:
+  permission_handler:
+  geolocator:
+
 
 dev_dependencies:
   flutter_test:

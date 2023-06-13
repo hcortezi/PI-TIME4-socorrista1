@@ -1,10 +1,14 @@
 
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class Dent extends StatelessWidget {
@@ -279,6 +283,40 @@ class EmergenciaAceita extends StatelessWidget {
     }
   }
 
+
+  Future<bool> requestLocationPermission() async {
+    final PermissionStatus permissionStatus = await Permission.location.request();
+    return permissionStatus == PermissionStatus.granted;
+  }
+
+  Future<void> _sendLocationToKotlinApp(BuildContext context) async {
+    final bool hasPermission = await requestLocationPermission();
+
+    if (hasPermission) {
+      try {
+        final Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+        final FirebaseMessaging messaging = FirebaseMessaging.instance;
+        final token = await messaging.getToken();
+
+        final channel = MethodChannel('location_channel');
+        final result = await channel.invokeMethod('sendLocation', {
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+          'fcmToken': token,
+        });
+
+        print(result); // Handle the response from the Kotlin app
+      } catch (e) {
+        print('Error retrieving location: $e');
+      }
+    } else {
+      print('Location permission denied');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -311,7 +349,7 @@ class EmergenciaAceita extends StatelessWidget {
                         color: Colors.white,
                         alignment: Alignment.topCenter,
                         child:
-                        Text("Endereço: $endereco",
+                        Text("Telefone: $endereco",
                           textAlign: TextAlign.center, style: GoogleFonts.montserrat(
                             fontSize: 30,
                             color: Colors.black,
@@ -348,8 +386,7 @@ class EmergenciaAceita extends StatelessWidget {
                   },
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                  },
+                  onPressed: () => _sendLocationToKotlinApp(context),
                   child: const Text("Enviar Localização", textAlign: TextAlign.center,),
                 ),
               ],
