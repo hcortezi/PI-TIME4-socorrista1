@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Emergencia.dart';
@@ -66,7 +65,7 @@ class MyApp extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const classific()),
+                      MaterialPageRoute(builder: (context) => const Classific()),
                     );
                   },
                   style: ElevatedButton.styleFrom(

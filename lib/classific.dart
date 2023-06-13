@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class classific extends StatelessWidget {
-  const classific({super.key});
+class Classific extends StatelessWidget {
+  const Classific({super.key});
 
   @override
   Widget build(BuildContext context) {
