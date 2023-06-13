@@ -12,7 +12,7 @@ class Dent extends StatelessWidget {
       title: 'Firestore ListView Example',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Firestore ListView Example'),
+          title: const Text('Firestore ListView Example'),
         ),
         body: DentWidget(),
       ),
@@ -89,7 +89,7 @@ class _DentWidgetState extends State<DentWidget> {
       future: fetchDataFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         } else if (snapshot.hasError) {
@@ -107,7 +107,7 @@ class _DentWidgetState extends State<DentWidget> {
             },
           );
         } else {
-          return Center(
+          return const Center(
             child: Text('No Data'),
           );
         }
