@@ -55,39 +55,49 @@ class _DentWidgetState extends State<DentWidget> {
     });
   }
 
+  Future<String> getNomeFromUID(String uid) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.get('nome');
+    } else {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<String>>(
-      stream: fetchDataStream,
+      stream: fetchDentistasFromFirebase(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
+        if (snapshot.hasData) {
+          List<String> dentistasList = snapshot.data!;
+          return ListView.builder(
+            itemCount: dentistasList.length,
+            itemBuilder: (context, index) {
+              String uid = dentistasList[index];
+              return FutureBuilder<String>(
+                future: getNomeFromUID(uid),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    String nome = snapshot.data!;
+                    return Text("Dentista: $nome");
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              );
+            },
           );
         } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else if (snapshot.hasData) {
-          List<String> nomes = snapshot.data!;
-          if (nomes.isEmpty) {
-            return Center(
-              child: Text('No Data'),
-            );
-          } else {
-            return ListView.builder(
-              itemCount: nomes.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text("Dentista: ${nomes[index]}"),
-                );
-              },
-            );
-          }
+          return Text('Error: ${snapshot.error}');
         } else {
-          return Center(
-            child: Text('No Data'),
-          );
+          return CircularProgressIndicator();
         }
       },
     );
