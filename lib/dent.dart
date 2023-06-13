@@ -242,10 +242,126 @@ class EmergenciaAceita extends StatelessWidget {
 
   const EmergenciaAceita({Key? key, required this.uid});
 
+  Future<String> getEnderecoFromUID(String uid) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    String id = snapshot.docs.first.id.toString();
+    DocumentSnapshot doc =
+    await FirebaseFirestore.instance.collection("users").doc(id).get();
+    return doc.get("telefone").toString();
+  }
+
+  Future<String> getTelefoneFromUID(String uid) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    String id = snapshot.docs.first.id.toString();
+    DocumentSnapshot doc =
+    await FirebaseFirestore.instance.collection("users").doc(id).get();
+    return doc.get("endereco").toString();
+  }
+
+  Future<String> getNomeFromUID(String uid) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.get('nome');
+    } else {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Atendimento'),
+      ),
+      body: FutureBuilder<String>(
+        future: getNomeFromUID(uid),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            String nome = snapshot.data!;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Text(
+                  "Nome do dentista: $nome",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 30,
+                    color: Colors.black,
+                  ),
+                ),
+                FutureBuilder<String>(
+                  future: getEnderecoFromUID(uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      String endereco = snapshot.data!;
+                      return Container(
+                        padding: const EdgeInsets.all(60),
+                        color: Colors.white,
+                        alignment: Alignment.topCenter,
+                        child:
+                        Text("Endereço: $endereco",
+                          textAlign: TextAlign.center, style: GoogleFonts.montserrat(
+                            fontSize: 30,
+                            color: Colors.black,
+                          ),),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
+                FutureBuilder<String>(
+                  future: getTelefoneFromUID(uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      String endereco = snapshot.data!;
+                      return Container(
+                        padding: const EdgeInsets.all(60),
+                        color: Colors.white,
+                        alignment: Alignment.topCenter,
+                        child:
+                        Text("Endereço: $endereco",
+                          textAlign: TextAlign.center, style: GoogleFonts.montserrat(
+                            fontSize: 30,
+                            color: Colors.black,
+                          ),),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                  },
+                  child: const Text("Enviar Localização", textAlign: TextAlign.center,),
+                ),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
+      ),
+    );
   }
 
 }
