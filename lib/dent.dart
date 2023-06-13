@@ -84,11 +84,18 @@ class _DentWidgetState extends State<DentWidget> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     String nome = snapshot.data!;
-                    return Text("Dentista: $nome");
+                    return ElevatedButton(onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DentistDetailsScreen(uid: uid),
+                        ),
+                      );
+                    }, child:Text("Dentista: $nome"));
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
                 },
               );
@@ -97,9 +104,52 @@ class _DentWidgetState extends State<DentWidget> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
       },
+    );
+  }
+}
+
+class DentistDetailsScreen extends StatelessWidget {
+  final String uid;
+
+  const DentistDetailsScreen({super.key, required this.uid});
+
+  Future<String> getNomeFromUID(String uid) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.get('nome');
+    } else {
+      return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detalhes do Dentista'),
+      ),
+      body: FutureBuilder<String>(
+        future: getNomeFromUID(uid),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            String nome = snapshot.data!;
+            return Center(
+              child: Text(nome),
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 }
