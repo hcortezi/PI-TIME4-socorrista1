@@ -84,7 +84,7 @@ class _DentWidgetState extends State<DentWidget> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     String nome = snapshot.data!;
-                    return ElevatedButton(onPressed: () {
+                    return ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.teal), onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
