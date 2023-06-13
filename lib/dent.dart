@@ -1,6 +1,9 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Dent extends StatelessWidget {
   @override
@@ -18,6 +21,8 @@ class Dent extends StatelessWidget {
 }
 
 class DentWidget extends StatefulWidget {
+  const DentWidget({super.key});
+
   @override
   _DentWidgetState createState() => _DentWidgetState();
 }
@@ -114,7 +119,11 @@ class _DentWidgetState extends State<DentWidget> {
 class DentistDetailsScreen extends StatelessWidget {
   final String uid;
 
+
+
   const DentistDetailsScreen({super.key, required this.uid});
+
+
 
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -129,6 +138,39 @@ class DentistDetailsScreen extends StatelessWidget {
     }
   }
 
+  void definirEmergencia(String uidD) {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    String? uidE = user?.uid.toString();
+    FirebaseFirestore.instance
+        .collection('emergencias')
+        .doc(uidE)
+        .update({'status': true})
+        .then((value) {
+      FirebaseFirestore.instance
+          .collection('emergencias')
+          .doc(uidE)
+          .update({'dentistas': uidD}).then((value){
+        print('Emergencia atualizada com sucesso');
+      }).catchError((error){print('Erro ao definir dentista');});
+    }).catchError((error) {
+      print('Erro no update de status: $error');
+    });
+  }
+
+  /*Future<String> getCurriculoFromUID(String uid) async {
+     QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+       String id = snapshot.docs.first.id.toString();
+       DocumentSnapshot doc = await FirebaseFirestore.instance.collection("users").doc(id).get();
+       return doc.get("curriculo").toString();
+
+
+  }*/
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,8 +182,33 @@ class DentistDetailsScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             String nome = snapshot.data!;
-            return Center(
-              child: Text(nome),
+            return  Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget> [
+                  Text(
+                      "Nome do dentista: $nome",
+                      textAlign: TextAlign.center,
+                      style:GoogleFonts.montserrat(
+                        fontSize: 30,
+                        color: Colors.black,
+                      )
+
+                  ),
+                  Text(
+                      "Mini currículo: ",
+                      textAlign: TextAlign.center,
+                      style:GoogleFonts.montserrat(
+                        fontSize: 30,
+                        color: Colors.black,
+                      )
+
+                  ),
+                  ElevatedButton(onPressed: (){
+                    definirEmergencia(uid);
+                  }, child: const Text("ESCOLHER PROFISSIONAL"))
+
+                ]
+
             );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
