@@ -50,17 +50,21 @@ class _DentWidgetState extends State<DentWidget> {
 
     List<String> names = [];
 
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', whereIn: dentistas)
-        .get();
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', whereIn: dentistas)
+          .get();
 
-    for (var doc in snapshot.docs) {
-      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-      if (data != null && data.containsKey('nome')) {
-        String name = data['nome'];
-        names.add(name);
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+        if (data != null && data.containsKey('nome')) {
+          String name = data['nome'];
+          names.add(name);
+        }
       }
+    } catch (error) {
+      print('Error fetching names: $error');
     }
 
     return names;
@@ -110,5 +114,6 @@ class _DentWidgetState extends State<DentWidget> {
 }
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(Dent());
 }
