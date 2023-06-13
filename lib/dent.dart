@@ -284,8 +284,9 @@ class EmergenciaAceita extends StatelessWidget {
   }
 
 
-  Future<bool> requestLocationPermission() async {
+  Future requestLocationPermission() async {
     final PermissionStatus permissionStatus = await Permission.location.request();
+
     return permissionStatus == PermissionStatus.granted;
   }
 
