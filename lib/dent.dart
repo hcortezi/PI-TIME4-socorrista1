@@ -11,7 +11,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/LocationData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 
@@ -66,7 +65,7 @@ class _DentWidgetState extends State<DentWidget> {
       List<String> dentistasList = [];
       if (snapshot.size > 0) {
         Map<String, dynamic>? data = snapshot.docs.first.data();
-        if (data != null && data.containsKey('dentistas')) {
+        if (data.containsKey('dentistas')) {
           List<dynamic> dentistasArray = data['dentistas'];
           dentistasList = dentistasArray.map((item) => item.toString()).toList();
         }
@@ -393,8 +392,8 @@ class EmergenciaAceita extends StatelessWidget {
 
 
   Future<void> initializeFirebaseMessaging() async {
-    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await firebaseMessaging.requestPermission(
       announcement: true,
       criticalAlert: true,
       alert: true,
@@ -402,7 +401,7 @@ class EmergenciaAceita extends StatelessWidget {
       sound: true,
     );
     print('User granted permission: ${settings.authorizationStatus}');
-    String? token = await _firebaseMessaging.getToken();
+    String? token = await firebaseMessaging.getToken();
     print('FCM Token: $token');
   }
 
