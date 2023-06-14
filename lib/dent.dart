@@ -11,7 +11,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/LocationData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'firebaseMessagingService.dart';
 
 
 class Dent extends StatelessWidget {
@@ -290,23 +289,11 @@ class DentistDetailsScreen extends StatelessWidget {
 class EmergenciaAceita extends StatelessWidget {
   final String uid;
 
-  const EmergenciaAceita({Key? key, required this.uid});
+  const EmergenciaAceita({Key? key, required this.uid}) : super(key:key);
 
 
 
-  Future<String> getEnderecoFromUID(String uid) async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', isEqualTo: uid)
-        .get();
-
-    String id = snapshot.docs.first.id.toString();
-    DocumentSnapshot doc =
-    await FirebaseFirestore.instance.collection("users").doc(id).get();
-    return doc.get("telefone").toString();
-  }
-
-  Future<String> getTelefoneFromUID(String uid) async {
+  Future<String?> getEnderecoFromUID(String uid) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('uid', isEqualTo: uid)
@@ -318,32 +305,43 @@ class EmergenciaAceita extends StatelessWidget {
     return doc.get("endereco").toString();
   }
 
-  Future<String> getNomeFromUID(String uid) async {
+  Future<String?> getTelefoneFromUID(String uid) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    String id = snapshot.docs.first.id.toString();
+    DocumentSnapshot doc =
+    await FirebaseFirestore.instance.collection("users").doc(id).get();
+    return doc.get("telefone").toString();
+  }
+
+  Future<String?> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('uid', isEqualTo: uid)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      return querySnapshot.docs.first.get('nome');
+      return querySnapshot.docs.first.get('nome') as String?;
     } else {
-      return '';
+      return null;
     }
   }
 
 
-  Future requestLocationPermission() async {
+  Future<bool> requestLocationPermission() async {
     final PermissionStatus permissionStatus = await Permission.location.request();
 
     return permissionStatus == PermissionStatus.granted;
   }
 
 
-  Future<LocationData> getLocation() async {
+  Future<LocationData?> getLocation() async {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Handle permission denied case
         throw Exception('Location permission denied');
       }
 
@@ -355,36 +353,62 @@ class EmergenciaAceita extends StatelessWidget {
         longitude: position.longitude,
       );
     } catch (e) {
-      // Handle location retrieval error
       print('Error retrieving location: $e');
-      throw Exception('Error retrieving location: $e');
+      return null;
     }
   }
 
   void sendLocationToKotlin() async {
     try {
-      LocationData location = await getLocation();
+      LocationData? location = await getLocation();
 
-      final FirebaseMessaging messaging = FirebaseMessaging.instance;
-      String? fcmToken = await messaging.getToken();
+      if (location != null) {
+        final FirebaseMessaging messaging = FirebaseMessaging.instance;
+        String? fcmToken = await messaging.getToken();
 
-      // Construct a data payload with the location coordinates
-      Map<String, String> data = {
-        'latitude': location.latitude.toString(),
-        'longitude': location.longitude.toString(),
-      };
+        Map<String, String> data = {
+          'latitude': location.latitude.toString(),
+          'longitude': location.longitude.toString(),
+        };
 
-      // Send the FCM message with the data payload
-      messaging.sendMessage(
-        to: fcmToken,
-        data: data,
-      );
+        messaging.sendMessage(
+          to: fcmToken,
+          data: data,
+        );
 
-      print('Location sent to Kotlin app');
+        print('Location sent to Kotlin app');
+      } else {
+        print('Location is null');
+      }
     } catch (e) {
-      // Handle error retrieving location or sending FCM
       print('Error: $e');
     }
+  }
+
+  Future<void> initializeFirebaseMessaging() async {
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+      announcement: true,
+      criticalAlert: true,
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    print('User granted permission: ${settings.authorizationStatus}');
+    String? token = await _firebaseMessaging.getToken();
+    print('FCM Token: $token');
+  }
+
+  void configureFirebaseMessaging() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Received message: ${message.notification?.body}');
+      // Handle the received message here
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Opened app from background message: ${message.notification?.body}');
+      // Handle the opened app from background message here
+    });
   }
 
 
@@ -394,9 +418,7 @@ class EmergenciaAceita extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Atendimento'),
       ),
-      body:
-
-      FutureBuilder<String>(
+      body: FutureBuilder<String?>(
         future: getNomeFromUID(uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -412,7 +434,7 @@ class EmergenciaAceita extends StatelessWidget {
                     color: Colors.black,
                   ),
                 ),
-                FutureBuilder<String>(
+                FutureBuilder<String?>(
                   future: getEnderecoFromUID(uid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
@@ -421,12 +443,14 @@ class EmergenciaAceita extends StatelessWidget {
                         padding: const EdgeInsets.all(60),
                         color: Colors.white,
                         alignment: Alignment.topCenter,
-                        child:
-                        Text("Telefone: $endereco",
-                          textAlign: TextAlign.center, style: GoogleFonts.montserrat(
+                        child: Text(
+                          "Endereço: $endereco",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
                             fontSize: 20,
                             color: Colors.black,
-                          ),),
+                          ),
+                        ),
                       );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -435,24 +459,26 @@ class EmergenciaAceita extends StatelessWidget {
                     }
                   },
                 ),
-                FutureBuilder<String>(
+                FutureBuilder<String?>(
                   future: getTelefoneFromUID(uid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      String endereco = snapshot.data!;
+                      String telefone = snapshot.data!;
                       return Container(
                         padding: const EdgeInsets.all(60),
                         color: Colors.white,
                         alignment: Alignment.topCenter,
-                        child:
-                        Text("Endereço: $endereco",
-                          textAlign: TextAlign.center, style: GoogleFonts.montserrat(
+                        child: Text(
+                          "Telefone: $telefone",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
                             fontSize: 20,
                             color: Colors.black,
-                          ),),
+                          ),
+                        ),
                       );
                     } else if (snapshot.hasError) {
-                      return Text('Error  : ${snapshot.error}');
+                      return Text('Error: ${snapshot.error}');
                     } else {
                       return const CircularProgressIndicator();
                     }
@@ -460,7 +486,10 @@ class EmergenciaAceita extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () => sendLocationToKotlin(),
-                  child: const Text("Enviar Localização", textAlign: TextAlign.center,),
+                  child: const Text(
+                    "Enviar Localização",
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             );
@@ -473,15 +502,11 @@ class EmergenciaAceita extends StatelessWidget {
       ),
     );
   }
-
 }
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessagingService firebaseMessagingService = FirebaseMessagingService();
-  await firebaseMessagingService.initializeFirebaseMessaging();
-  firebaseMessagingService.configureFirebaseMessaging();
   runApp(const Dent());
 }

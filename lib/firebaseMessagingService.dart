@@ -1,13 +1,15 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class FirebaseMessagingService {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   Future<void> initializeFirebaseMessaging() async {
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       announcement: true,
-      carPlay: true,
       criticalAlert: true,
+      alert: true,
+      badge: true,
+      sound: true,
     );
     print('User granted permission: ${settings.authorizationStatus}');
     String? token = await _firebaseMessaging.getToken();
