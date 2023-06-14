@@ -2,26 +2,29 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/LocationData.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class Dent extends StatelessWidget {
+  const Dent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Firestore ListView Example',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Firestore ListView Example'),
+          title: const Text('Firestore ListView Example'),
         ),
-        body: DentWidget(),
+        body: const DentWidget(),
       ),
     );
   }
@@ -175,6 +178,19 @@ class DentistDetailsScreen extends StatelessWidget {
     return doc.get("curriculo").toString();
   }
 
+  Future<String> retrievePhotoUrl(String uid) async {
+    final FirebaseStorage storage = FirebaseStorage.instance;
+
+    try {
+      Reference ref = storage.ref('dentistas').child('$uid.jpeg');
+      String url = await ref.getDownloadURL();
+      return url;
+    } catch (e) {
+      print('Error retrieving photo URL: $e');
+      throw Exception('Error retrieving photo URL: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,6 +233,27 @@ class DentistDetailsScreen extends StatelessWidget {
                     }
                   },
                 ),
+                FutureBuilder<String>(
+                  future: retrievePhotoUrl(uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (snapshot.hasData) {
+                      String photoUrl = snapshot.data ?? 'N/A';
+                      return CachedNetworkImage(
+                        imageUrl: photoUrl,
+                        placeholder: (context, url) => const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        width: 200,
+                        height: 200,
+                      );
+                    } else {
+                      return const Text('No photo found');
+                    }
+                  },
+                ),
                 ElevatedButton(
                   onPressed: () {
                     definirEmergencia(uid);
@@ -246,6 +283,8 @@ class EmergenciaAceita extends StatelessWidget {
   final String uid;
 
   const EmergenciaAceita({Key? key, required this.uid});
+
+
 
   Future<String> getEnderecoFromUID(String uid) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -291,34 +330,6 @@ class EmergenciaAceita extends StatelessWidget {
     return permissionStatus == PermissionStatus.granted;
   }
 
-
-  Future<void> _sendLocationToKotlinApp(BuildContext context) async {
-    final bool hasPermission = await requestLocationPermission();
-
-    if (hasPermission) {
-      try {
-        final Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-
-        final FirebaseMessaging messaging = FirebaseMessaging.instance;
-        final token = await messaging.getToken();
-
-        final channel = MethodChannel('default_channel');
-        final result = await channel.invokeMethod('sendLocation', {
-          'latitude': position.latitude,
-          'longitude': position.longitude,
-          'fcmToken': token,
-        });
-
-        print(result); // Handle the response from the Kotlin app
-      } catch (e) {
-        print('Error retrieving location: $e');
-      }
-    } else {
-      print('Location permission denied');
-    }
-  }
 
   Future<LocationData> getLocation() async {
     try {
@@ -375,7 +386,9 @@ class EmergenciaAceita extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Atendimento'),
       ),
-      body: FutureBuilder<String>(
+      body:
+
+      FutureBuilder<String>(
         future: getNomeFromUID(uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -459,5 +472,5 @@ class EmergenciaAceita extends StatelessWidget {
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(Dent());
+  runApp(const Dent());
 }

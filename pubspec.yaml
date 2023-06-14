@@ -48,6 +48,7 @@ dependencies:
   firebase_messaging:
   permission_handler:
   geolocator:
+  cached_network_image:
 
 
 dev_dependencies:
