@@ -204,7 +204,8 @@ class DentistDetailsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Detalhes do Dentista'),
       ),
-      body: FutureBuilder<String>(
+      body:
+      FutureBuilder<String>(
         future: getNomeFromUID(uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -213,10 +214,10 @@ class DentistDetailsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Text(
-                  "Nome do dentista: $nome",
+                  nome,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
-                    fontSize: 15,
+                    fontSize: 20,
                     color: Colors.black,
                   ),
                 ),
@@ -226,15 +227,15 @@ class DentistDetailsScreen extends StatelessWidget {
                     if (snapshot.hasData) {
                       String curriculo = snapshot.data!;
                       return Text(
-                        "Mini currículo: $curriculo",
+                        curriculo,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.montserrat(
-                          fontSize: 15,
+                          fontSize: 20,
                           color: Colors.black,
                         ),
                       );
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+                      return Text('Sem currículo');
                     } else {
                       return const CircularProgressIndicator();
                     }
@@ -246,7 +247,7 @@ class DentistDetailsScreen extends StatelessWidget {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator();
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+                      return Text('Dentista sem foto');
                     } else if (snapshot.hasData) {
                       String photoUrl = snapshot.data ?? 'N/A';
                       return CachedNetworkImage(
@@ -257,7 +258,7 @@ class DentistDetailsScreen extends StatelessWidget {
                         height: 200,
                       );
                     } else {
-                      return const Text('No photo found');
+                      return const Text('Dentista sem foto');
                     }
                   },
                 ),
@@ -423,7 +424,7 @@ class EmergenciaAceita extends StatelessWidget {
                         child:
                         Text("Telefone: $endereco",
                           textAlign: TextAlign.center, style: GoogleFonts.montserrat(
-                            fontSize: 30,
+                            fontSize: 20,
                             color: Colors.black,
                           ),),
                       );
@@ -446,7 +447,7 @@ class EmergenciaAceita extends StatelessWidget {
                         child:
                         Text("Endereço: $endereco",
                           textAlign: TextAlign.center, style: GoogleFonts.montserrat(
-                            fontSize: 30,
+                            fontSize: 20,
                             color: Colors.black,
                           ),),
                       );

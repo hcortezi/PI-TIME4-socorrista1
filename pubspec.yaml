@@ -45,7 +45,7 @@ dependencies:
   uuid: ^3.0.6
   google_fonts:
   firebase_auth: ^4.6.2
-  firebase_messaging:
+  firebase_messaging: ^14.6.3
   permission_handler:
   geolocator:
   cached_network_image:
