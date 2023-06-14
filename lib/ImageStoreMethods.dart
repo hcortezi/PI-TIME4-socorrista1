@@ -44,13 +44,13 @@ class ImageStoreMethods {
           dados: dados,
           nome: nome,
           telefone: telefone,
-          postID: postID,
+          postID: uid,
           dataPublicada: DateTime.now(),
           postURL: photoURL,
           token: token,
           status: false,
         );
-        _firestore.collection('emergencias').doc(uid).set(post.toJson(),);
+        _firestore.collection('emergencias').doc().set(post.toJson(),);
         res = 'sucesso';
       }
 

@@ -59,17 +59,21 @@ class _DentWidgetState extends State<DentWidget> {
 
     return FirebaseFirestore.instance
         .collection('emergencias')
-        .doc(uid)
+        .where('postID', isEqualTo: uid)
         .snapshots()
         .map((snapshot) {
-      Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-      if (data != null && data.containsKey('dentistas')) {
-        List<dynamic> dentistasArray = data['dentistas'];
-        return dentistasArray.map((item) => item.toString()).toList();
+      List<String> dentistasList = [];
+      if (snapshot.size > 0) {
+        Map<String, dynamic>? data = snapshot.docs.first.data();
+        if (data != null && data.containsKey('dentistas')) {
+          List<dynamic> dentistasArray = data['dentistas'];
+          dentistasList = dentistasArray.map((item) => item.toString()).toList();
+        }
       }
-      return [];
+      return dentistasList;
     });
   }
+
 
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -148,24 +152,26 @@ class DentistDetailsScreen extends StatelessWidget {
   void definirEmergencia(String uidD) {
     final FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
-    String? uidE = user?.uid.toString();
+    String? uidE = user?.uid;
+
     FirebaseFirestore.instance
         .collection('emergencias')
-        .doc(uidE)
-        .update({'status': true})
-        .then((value) {
-      FirebaseFirestore.instance
-          .collection('emergencias')
-          .doc(uidE)
-          .update({'dentistas': uidD}).then((value) {
-        print('Emergencia atualizada com sucesso');
-      }).catchError((error) {
-        print('Erro ao definir dentista');
-      });
+        .where('postID', isEqualTo: uidE)
+        .get()
+        .then((querySnapshot) {
+      for (var document in querySnapshot.docs) {
+        document.reference.update({'status': true, 'dentistas': uidD})
+            .then((value) {
+          print('Emergencia atualizada com sucesso');
+        }).catchError((error) {
+          print('Erro ao definir dentista: $error');
+        });
+      }
     }).catchError((error) {
-      print('Erro no update de status: $error');
+      print('Erro na consulta de emergencias: $error');
     });
   }
+
 
   Future<String> getCurriculoFromUID(String uid) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -210,7 +216,7 @@ class DentistDetailsScreen extends StatelessWidget {
                   "Nome do dentista: $nome",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
-                    fontSize: 30,
+                    fontSize: 15,
                     color: Colors.black,
                   ),
                 ),
@@ -223,7 +229,7 @@ class DentistDetailsScreen extends StatelessWidget {
                         "Mini currículo: $curriculo",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.montserrat(
-                          fontSize: 30,
+                          fontSize: 15,
                           color: Colors.black,
                         ),
                       );
