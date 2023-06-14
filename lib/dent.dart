@@ -235,7 +235,7 @@ class DentistDetailsScreen extends StatelessWidget {
                         ),
                       );
                     } else if (snapshot.hasError) {
-                      return Text('Sem currículo');
+                      return const Text('Sem currículo');
                     } else {
                       return const CircularProgressIndicator();
                     }
@@ -247,7 +247,7 @@ class DentistDetailsScreen extends StatelessWidget {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator();
                     } else if (snapshot.hasError) {
-                      return Text('Dentista sem foto');
+                      return const Text('Dentista sem foto');
                     } else if (snapshot.hasData) {
                       String photoUrl = snapshot.data ?? 'N/A';
                       return CachedNetworkImage(
