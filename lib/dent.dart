@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/LocationData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'firebaseMessagingService.dart';
 
 
 class Dent extends StatelessWidget {
@@ -472,5 +473,8 @@ class EmergenciaAceita extends StatelessWidget {
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessagingService firebaseMessagingService = FirebaseMessagingService();
+  await firebaseMessagingService.initializeFirebaseMessaging();
+  firebaseMessagingService.configureFirebaseMessaging();
   runApp(const Dent());
 }
