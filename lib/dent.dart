@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/LocationData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class Dent extends StatelessWidget {
@@ -213,10 +214,10 @@ class DentistDetailsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Text(
-                  nome,
+                  "Nome do dentista: $nome",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
-                    fontSize: 20,
+                    fontSize: 30,
                     color: Colors.black,
                   ),
                 ),
@@ -229,7 +230,7 @@ class DentistDetailsScreen extends StatelessWidget {
                         curriculo,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.montserrat(
-                          fontSize: 20,
+                          fontSize: 30,
                           color: Colors.black,
                         ),
                       );
@@ -359,31 +360,36 @@ class EmergenciaAceita extends StatelessWidget {
   }
 
   void sendLocationToKotlin() async {
-    try {
-      LocationData? location = await getLocation();
+    LocationData? location = await getLocation();
 
-      if (location != null) {
-        final FirebaseMessaging messaging = FirebaseMessaging.instance;
-        String? fcmToken = await messaging.getToken();
+    if (location != null) {
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      User? user = auth.currentUser;
+      final uidS = user?.uid;
 
-        Map<String, String> data = {
-          'latitude': location.latitude.toString(),
-          'longitude': location.longitude.toString(),
-        };
+      final latitude = location.latitude;
+      final longitude = location.longitude;
 
-        messaging.sendMessage(
-          to: fcmToken,
-          data: data,
-        );
+      GeoPoint dados = GeoPoint(latitude, longitude);
 
-        print('Location sent to Kotlin app');
-      } else {
-        print('Location is null');
-      }
-    } catch (e) {
-      print('Error: $e');
+      FirebaseFirestore.instance
+          .collection('emergencias')
+          .where('postID', isEqualTo: uidS)
+          .get()
+          .then((querySnapshot) {
+        for (var document in querySnapshot.docs) {
+          document.reference.update({'cordenadas': dados}).then((value) {
+            print("Inserido no firestore");
+          }).catchError((error) {
+            print("Error updating document: $error");
+          });
+        }
+      }).catchError((error) {
+        print("Error getting documents: $error");
+      });
     }
   }
+
 
   Future<void> initializeFirebaseMessaging() async {
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -439,19 +445,14 @@ class EmergenciaAceita extends StatelessWidget {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       String endereco = snapshot.data!;
-                      return Container(
-                        padding: const EdgeInsets.all(60),
-                        color: Colors.white,
-                        alignment: Alignment.topCenter,
-                        child: Text(
+                      return Text(
                           "Endereço: $endereco",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.montserrat(
                             fontSize: 20,
                             color: Colors.black,
                           ),
-                        ),
-                      );
+                        );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else {
@@ -464,19 +465,14 @@ class EmergenciaAceita extends StatelessWidget {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       String telefone = snapshot.data!;
-                      return Container(
-                        padding: const EdgeInsets.all(60),
-                        color: Colors.white,
-                        alignment: Alignment.topCenter,
-                        child: Text(
+                      return Text(
                           "Telefone: $telefone",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.montserrat(
                             fontSize: 20,
                             color: Colors.black,
                           ),
-                        ),
-                      );
+                        );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else {
