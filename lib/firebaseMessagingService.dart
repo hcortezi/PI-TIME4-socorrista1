@@ -11,19 +11,19 @@ class FirebaseMessagingService {
       badge: true,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
+    print('Permissão concedida: ${settings.authorizationStatus}');
     String? token = await _firebaseMessaging.getToken();
-    print('FCM Token: $token');
+    print('Token: $token');
   }
 
   void configureFirebaseMessaging() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Received message: ${message.notification?.body}');
+      print('Mensagem recebida: ${message.notification?.body}');
       // Handle the received message here
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Opened app from background message: ${message.notification?.body}');
+      print('App aberto por background message: ${message.notification?.body}');
       // Handle the opened app from background message here
     });
   }

@@ -1,5 +1,3 @@
-
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,18 +10,16 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/LocationData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-
-
 class Dent extends StatelessWidget {
   const Dent({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firestore ListView Example',
+      title: 'Lista dos Dentistas',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Firestore ListView Example'),
+          title: const Text('Lista dos Dentistas'),
         ),
         body: const DentWidget(),
       ),
@@ -52,7 +48,7 @@ class _DentWidgetState extends State<DentWidget> {
     User? user = auth.currentUser;
 
     if (user == null) {
-      return Stream.error('User not signed in');
+      return Stream.error('Usuário não logado');
     }
 
     String uid = user.uid;
@@ -67,7 +63,8 @@ class _DentWidgetState extends State<DentWidget> {
         Map<String, dynamic>? data = snapshot.docs.first.data();
         if (data.containsKey('dentistas')) {
           List<dynamic> dentistasArray = data['dentistas'];
-          dentistasList = dentistasArray.map((item) => item.toString()).toList();
+          dentistasList =
+              dentistasArray.map((item) => item.toString()).toList();
         }
       }
       return dentistasList;
@@ -90,43 +87,74 @@ class _DentWidgetState extends State<DentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<String>>(
-      stream: fetchDentistasFromFirebase(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<String> dentistasList = snapshot.data!;
-          return ListView.builder(
-            itemCount: dentistasList.length,
-            itemBuilder: (context, index) {
-              String uid = dentistasList[index];
-              return FutureBuilder<String>(
-                future: getNomeFromUID(uid),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    String nome = snapshot.data!;
-                    return ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.teal), onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DentistDetailsScreen(uid: uid),
-                        ),
-                      );
-                    }, child:Text("Dentista: $nome"));
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return const CircularProgressIndicator();
-                  }
-                },
-              );
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const LinearProgressIndicator(),
+           Text(
+            'Estamos procurando profissionais para te auxiliar...',
+            style: GoogleFonts.montserrat(
+                fontSize: 16,
+                color: Colors.black),
+          ),
+          const SizedBox(height: 16),
+
+          const SizedBox(height: 16),
+          StreamBuilder<List<String>>(
+            stream: fetchDentistasFromFirebase(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<String> dentistasList = snapshot.data!;
+                return ListView.builder(
+                  itemCount: dentistasList.length,
+                  itemBuilder: (context, index) {
+                    String uid = dentistasList[index];
+                    return FutureBuilder<String>(
+                      future: getNomeFromUID(uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          String nome = snapshot.data!;
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DentistDetailsScreen(uid: uid),
+                                ),
+                              );
+                            },
+                            child: Text("Dentista: $nome"),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('Buscando Dentistas...',
+                            style: GoogleFonts.montserrat(
+                                fontSize: 20,
+                                color: Colors.black),);
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    );
+                  },
+                );
+              } else if (snapshot.hasError) {
+                return Text('Buscando Dentistas...',
+                    style: GoogleFonts.montserrat(
+                    fontSize: 20,
+                    color: Colors.black),
+                );
+              } else {
+                return const CircularProgressIndicator();
+              }
             },
-          );
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -193,8 +221,8 @@ class DentistDetailsScreen extends StatelessWidget {
       String url = await ref.getDownloadURL();
       return url;
     } catch (e) {
-      print('Error retrieving photo URL: $e');
-      throw Exception('Error retrieving photo URL: $e');
+      print('Erro puxando photo URL: $e');
+      throw Exception('Erro puxando photo URL: $e');
     }
   }
 
@@ -343,7 +371,7 @@ class EmergenciaAceita extends StatelessWidget {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permission denied');
+        throw Exception('Permissão de Localização negada');
       }
 
       Position position = await Geolocator.getCurrentPosition(
@@ -354,7 +382,7 @@ class EmergenciaAceita extends StatelessWidget {
         longitude: position.longitude,
       );
     } catch (e) {
-      print('Error retrieving location: $e');
+      print('Erro ao puxar localização: $e');
       return null;
     }
   }
@@ -381,11 +409,11 @@ class EmergenciaAceita extends StatelessWidget {
           document.reference.update({'cordenadas': dados}).then((value) {
             print("Inserido no firestore");
           }).catchError((error) {
-            print("Error updating document: $error");
+            print("Erro ao atualizar documento: $error");
           });
         }
       }).catchError((error) {
-        print("Error getting documents: $error");
+        print("Erro ao pegar documento: $error");
       });
     }
   }
@@ -400,19 +428,19 @@ class EmergenciaAceita extends StatelessWidget {
       badge: true,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
+    print('Usuário deu permissão: ${settings.authorizationStatus}');
     String? token = await firebaseMessaging.getToken();
-    print('FCM Token: $token');
+    print('Token: $token');
   }
 
   void configureFirebaseMessaging() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Received message: ${message.notification?.body}');
+      print('Mensagem recebida: ${message.notification?.body}');
       // Handle the received message here
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Opened app from background message: ${message.notification?.body}');
+      print('App aperto da background msg: ${message.notification?.body}');
       // Handle the opened app from background message here
     });
   }
