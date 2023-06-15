@@ -11,7 +11,7 @@ import 'package:socorrista1/LocationData.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class Dent extends StatelessWidget {
-  const Dent({super.key});
+  const Dent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +20,27 @@ class Dent extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Lista dos Dentistas'),
+          centerTitle: true,
         ),
-        body: const DentWidget(),
+        body: Column(
+          children: [
+            LinearProgressIndicator(),
+            const SizedBox(height: 10),
+            const Text(
+              'Estamos procurando profissionais para te auxiliar...',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 10),
+            const Expanded(child: DentWidget()),
+          ],
+        ),
       ),
     );
   }
 }
 
 class DentWidget extends StatefulWidget {
-  const DentWidget({super.key});
+  const DentWidget({Key? key}) : super(key: key);
 
   @override
   _DentWidgetState createState() => _DentWidgetState();
@@ -55,6 +67,7 @@ class _DentWidgetState extends State<DentWidget> {
 
     return FirebaseFirestore.instance
         .collection('emergencias')
+        .where('status', isEqualTo: false)
         .where('postID', isEqualTo: uid)
         .snapshots()
         .map((snapshot) {
@@ -71,7 +84,6 @@ class _DentWidgetState extends State<DentWidget> {
     });
   }
 
-
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -87,74 +99,56 @@ class _DentWidgetState extends State<DentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const LinearProgressIndicator(),
-           Text(
-            'Estamos procurando profissionais para te auxiliar...',
-            style: GoogleFonts.montserrat(
-                fontSize: 16,
-                color: Colors.black),
-          ),
-          const SizedBox(height: 16),
-
-          const SizedBox(height: 16),
-          StreamBuilder<List<String>>(
-            stream: fetchDentistasFromFirebase(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<String> dentistasList = snapshot.data!;
-                return ListView.builder(
-                  itemCount: dentistasList.length,
-                  itemBuilder: (context, index) {
-                    String uid = dentistasList[index];
-                    return FutureBuilder<String>(
-                      future: getNomeFromUID(uid),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          String nome = snapshot.data!;
-                          return ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal,
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      DentistDetailsScreen(uid: uid),
-                                ),
-                              );
-                            },
-                            child: Text("Dentista: $nome"),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Buscando Dentistas...',
-                            style: GoogleFonts.montserrat(
-                                fontSize: 20,
-                                color: Colors.black),);
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
+    return StreamBuilder<List<String>>(
+      stream: fetchDentistasFromFirebase(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<String> dentistasList = snapshot.data!;
+          return ListView.builder(
+            itemCount: dentistasList.length,
+            itemBuilder: (context, index) {
+              String uid = dentistasList[index];
+              return FutureBuilder<String>(
+                future: getNomeFromUID(uid),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    String nome = snapshot.data!;
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DentistDetailsScreen(uid: uid),
+                          ),
+                        );
                       },
+                      child: Text(
+                        nome,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
                     );
-                  },
-                );
-              } else if (snapshot.hasError) {
-                return Text('Buscando Dentistas...',
-                    style: GoogleFonts.montserrat(
-                    fontSize: 20,
-                    color: Colors.black),
-                );
-              } else {
-                return const CircularProgressIndicator();
-              }
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return const CircularProgressIndicator();
+                  }
+                },
+              );
             },
-          ),
-        ],
-      ),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
     );
   }
 }
@@ -231,6 +225,7 @@ class DentistDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhes do Dentista'),
+        centerTitle: true,
       ),
       body:
       FutureBuilder<String>(
@@ -238,71 +233,73 @@ class DentistDetailsScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             String nome = snapshot.data!;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text(
-                  "Nome do dentista: $nome",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 30,
-                    color: Colors.black,
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text(
+                    nome,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 22,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                FutureBuilder<String>(
-                  future: getCurriculoFromUID(uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      String curriculo = snapshot.data!;
-                      return Text(
-                        curriculo,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 30,
-                          color: Colors.black,
+                  FutureBuilder<String>(
+                    future: getCurriculoFromUID(uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        String curriculo = snapshot.data!;
+                        return Text(
+                          curriculo,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 17,
+                            color: Colors.black,
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Text('Sem currículo');
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
+                  FutureBuilder<String>(
+                    future: retrievePhotoUrl(uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return const Text('Dentista sem foto');
+                      } else if (snapshot.hasData) {
+                        String photoUrl = snapshot.data ?? 'N/A';
+                        return CachedNetworkImage(
+                          imageUrl: photoUrl,
+                          placeholder: (context, url) => const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          width: 150,
+                          height: 150,
+                        );
+                      } else {
+                        return const Text('Dentista sem foto');
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      definirEmergencia(uid);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EmergenciaAceita(uid: uid),
                         ),
                       );
-                    } else if (snapshot.hasError) {
-                      return const Text('Sem currículo');
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
-                  },
-                ),
-                FutureBuilder<String>(
-                  future: retrievePhotoUrl(uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Dentista sem foto');
-                    } else if (snapshot.hasData) {
-                      String photoUrl = snapshot.data ?? 'N/A';
-                      return CachedNetworkImage(
-                        imageUrl: photoUrl,
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        width: 200,
-                        height: 200,
-                      );
-                    } else {
-                      return const Text('Dentista sem foto');
-                    }
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    definirEmergencia(uid);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EmergenciaAceita(uid: uid),
-                      ),
-                    );
-                  },
-                  child: const Text("ESCOLHER PROFISSIONAL"),
-                ),
-              ],
+                    },
+                    child: const Text("ESCOLHER PROFISSIONAL"),
+                  ),
+                ]
+              )
             );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
@@ -451,29 +448,31 @@ class EmergenciaAceita extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Atendimento'),
+        centerTitle: true,
       ),
       body: FutureBuilder<String?>(
         future: getNomeFromUID(uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             String nome = snapshot.data!;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text(
-                  "Nome do dentista: $nome",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 30,
-                    color: Colors.black,
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text(
+                    nome,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 20,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                FutureBuilder<String?>(
-                  future: getEnderecoFromUID(uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      String endereco = snapshot.data!;
-                      return Text(
+                  FutureBuilder<String?>(
+                    future: getEnderecoFromUID(uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        String endereco = snapshot.data!;
+                        return Text(
                           "Endereço: $endereco",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.montserrat(
@@ -481,19 +480,19 @@ class EmergenciaAceita extends StatelessWidget {
                             color: Colors.black,
                           ),
                         );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
-                  },
-                ),
-                FutureBuilder<String?>(
-                  future: getTelefoneFromUID(uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      String telefone = snapshot.data!;
-                      return Text(
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
+                  FutureBuilder<String?>(
+                    future: getTelefoneFromUID(uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        String telefone = snapshot.data!;
+                        return Text(
                           "Telefone: $telefone",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.montserrat(
@@ -501,21 +500,22 @@ class EmergenciaAceita extends StatelessWidget {
                             color: Colors.black,
                           ),
                         );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () => sendLocationToKotlin(),
-                  child: const Text(
-                    "Enviar Localização",
-                    textAlign: TextAlign.center,
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
                   ),
-                ),
-              ],
+                  ElevatedButton(
+                    onPressed: () => sendLocationToKotlin(),
+                    child: const Text(
+                      "Enviar Localização",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              )
             );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
