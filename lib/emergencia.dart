@@ -52,14 +52,12 @@ class _EmergenciaState extends State<Emergencia> {
       );
 
       if (res == 'sucesso') {
-        showSnackBar('Postado');
         setState(() {
           _isLoading = false;
         });
         clearImage();
         clearText();
       } else {
-        showSnackBar('erro');
         setState(() {
           _isLoading = false;
         });

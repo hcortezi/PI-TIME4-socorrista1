@@ -1,3 +1,5 @@
+
+
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -8,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:socorrista1/main.dart';
@@ -327,7 +328,7 @@ class EmergenciaAceita extends StatefulWidget {
 class _EmergenciaAceitaState extends State<EmergenciaAceita> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  void checkAndNavigate(GlobalKey<NavigatorState> navigatorKey) async {
+  void checkAndNavigate() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     final FirebaseAuth auth = FirebaseAuth.instance;
     UserCredential userCredential = await auth.signInAnonymously();
@@ -344,7 +345,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
       if (snapshot.docs.isNotEmpty) {
         // Document matching the criteria is found
         timer.cancel(); // Stop the periodic timer
-        navigatorKey.currentState?.pushReplacement(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => MyApp(navigatorKey: navigatorKey)),
         );
       }
@@ -389,10 +390,6 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
-  Future<bool> requestLocationPermission() async {
-    final PermissionStatus permissionStatus = await Permission.location.request();
-    return permissionStatus == PermissionStatus.granted;
-  }
 
   Future<LocationData?> getLocation() async {
     try {
@@ -538,7 +535,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                   ElevatedButton(
                     onPressed: () {
                       sendLocationToFirestore();
-                      checkAndNavigate(navigatorKey);
+                      checkAndNavigate();
                     },
                     child: const Text(
                       "Enviar Localização",
