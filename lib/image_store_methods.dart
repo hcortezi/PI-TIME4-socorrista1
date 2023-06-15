@@ -27,7 +27,7 @@ class ImageStoreMethods {
   }
 
   Future<String> uploadPost(String dados, String nome, String telefone, Uint8List file) async{
-    await auth.signOut(); // Sign out current user
+    await auth.signOut();
     String res = 'Ocorreu um erro';
     try {
       UserCredential userCredential = await auth.signInAnonymously();
