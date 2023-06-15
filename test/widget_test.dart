@@ -12,9 +12,8 @@ import 'package:socorrista1/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp(navigatorKey: navigatorKey));
+    await tester.pumpWidget(const MyApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

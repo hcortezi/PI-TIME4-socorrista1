@@ -10,18 +10,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     title: "main",
-    home: MyApp(navigatorKey: navigatorKey),
+    home: MyApp(),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-
-  const MyApp({Key? key, required this.navigatorKey}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

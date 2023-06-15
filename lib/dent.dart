@@ -10,9 +10,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:socorrista1/classific.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:socorrista1/main.dart';
 
 class Dent extends StatelessWidget {
   const Dent({Key? key}) : super(key: key);
@@ -326,7 +326,7 @@ class EmergenciaAceita extends StatefulWidget {
 }
 
 class _EmergenciaAceitaState extends State<EmergenciaAceita> {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 
   void checkAndNavigate() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -346,7 +346,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
         // Document matching the criteria is found
         timer.cancel(); // Stop the periodic timer
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MyApp(navigatorKey: navigatorKey)),
+          MaterialPageRoute(builder: (context) => const Classific()),
         );
       }
     });
