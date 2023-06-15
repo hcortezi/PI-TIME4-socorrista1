@@ -384,7 +384,7 @@ class EmergenciaAceita extends StatelessWidget {
     }
   }
 
-  void sendLocationToKotlin() async {
+  void sendLocationToFlutter() async {
     LocationData? location = await getLocation();
 
     if (location != null) {
@@ -508,7 +508,7 @@ class EmergenciaAceita extends StatelessWidget {
                     },
                   ),
                   ElevatedButton(
-                    onPressed: () => sendLocationToKotlin(),
+                    onPressed: () => sendLocationToFlutter(),
                     child: const Text(
                       "Enviar Localização",
                       textAlign: TextAlign.center,
