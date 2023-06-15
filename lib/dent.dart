@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -9,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:socorrista1/main.dart';
 
 class Dent extends StatelessWidget {
   const Dent({Key? key}) : super(key: key);
@@ -174,11 +177,11 @@ class DentistDetailsScreen extends StatelessWidget {
   void definirEmergencia(String uidD) {
     final FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
-    String? uidE = user?.uid;
+    String? uidS = user?.uid;
 
     FirebaseFirestore.instance
         .collection('emergencias')
-        .where('postID', isEqualTo: uidE)
+        .where('postID', isEqualTo: uidS)
         .get()
         .then((querySnapshot) {
       for (var document in querySnapshot.docs) {
@@ -312,39 +315,69 @@ class DentistDetailsScreen extends StatelessWidget {
   }
 }
 
-class EmergenciaAceita extends StatelessWidget {
+class EmergenciaAceita extends StatefulWidget {
   final String uid;
 
-  const EmergenciaAceita({Key? key, required this.uid}) : super(key:key);
+  const EmergenciaAceita({Key? key, required this.uid}) : super(key: key);
 
+  @override
+  _EmergenciaAceitaState createState() => _EmergenciaAceitaState();
+}
+
+class _EmergenciaAceitaState extends State<EmergenciaAceita> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  void checkAndNavigate(GlobalKey<NavigatorState> navigatorKey) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    UserCredential userCredential = await auth.signInAnonymously();
+    User? user = userCredential.user;
+    String uidS = user!.uid;
+
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
+      final QuerySnapshot snapshot = await firestore
+          .collection('emergencias')
+          .where('postID', isEqualTo: uidS)
+          .where('status', isEqualTo: 'finalizado')
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        // Document matching the criteria is found
+        timer.cancel(); // Stop the periodic timer
+        navigatorKey.currentState?.pushReplacement(
+          MaterialPageRoute(builder: (context) => MyApp(navigatorKey: navigatorKey)),
+        );
+      }
+    });
+  }
 
 
   Future<String?> getEnderecoFromUID(String uid) async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('uid', isEqualTo: uid)
         .get();
 
-    String id = snapshot.docs.first.id.toString();
-    DocumentSnapshot doc =
+    final String id = snapshot.docs.first.id.toString();
+    final DocumentSnapshot doc =
     await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("endereco").toString();
   }
 
   Future<String?> getTelefoneFromUID(String uid) async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('uid', isEqualTo: uid)
         .get();
 
-    String id = snapshot.docs.first.id.toString();
-    DocumentSnapshot doc =
+    final String id = snapshot.docs.first.id.toString();
+    final DocumentSnapshot doc =
     await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("telefone").toString();
   }
 
   Future<String?> getNomeFromUID(String uid) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('uid', isEqualTo: uid)
         .get();
@@ -356,22 +389,19 @@ class EmergenciaAceita extends StatelessWidget {
     }
   }
 
-
   Future<bool> requestLocationPermission() async {
     final PermissionStatus permissionStatus = await Permission.location.request();
-
     return permissionStatus == PermissionStatus.granted;
   }
 
-
   Future<LocationData?> getLocation() async {
     try {
-      LocationPermission permission = await Geolocator.requestPermission();
+      final LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         throw Exception('Permissão de Localização negada');
       }
 
-      Position position = await Geolocator.getCurrentPosition(
+      final Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
       return LocationData(
@@ -384,27 +414,27 @@ class EmergenciaAceita extends StatelessWidget {
     }
   }
 
-  void sendLocationToFlutter() async {
-    LocationData? location = await getLocation();
+  void sendLocationToFirestore() async {
+    final LocationData? location = await getLocation();
 
     if (location != null) {
       final FirebaseAuth auth = FirebaseAuth.instance;
-      User? user = auth.currentUser;
-      final uidS = user?.uid;
+      final User? user = auth.currentUser;
+      final String? uidS = user?.uid;
 
-      final latitude = location.latitude;
-      final longitude = location.longitude;
+      final double latitude = location.latitude;
+      final double longitude = location.longitude;
 
-      GeoPoint dados = GeoPoint(latitude, longitude);
+      final GeoPoint dados = GeoPoint(latitude, longitude);
 
       FirebaseFirestore.instance
           .collection('emergencias')
           .where('postID', isEqualTo: uidS)
           .get()
           .then((querySnapshot) {
-        for (var document in querySnapshot.docs) {
-          document.reference.update({'cordenadas': dados}).then((value) {
-            print("Inserido no firestore");
+        for (final document in querySnapshot.docs) {
+          document.reference.update({'coordenadas': dados}).then((value) {
+            print("Inserido no Firestore");
           }).catchError((error) {
             print("Erro ao atualizar documento: $error");
           });
@@ -415,10 +445,9 @@ class EmergenciaAceita extends StatelessWidget {
     }
   }
 
-
   Future<void> initializeFirebaseMessaging() async {
     final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-    NotificationSettings settings = await firebaseMessaging.requestPermission(
+    final NotificationSettings settings = await firebaseMessaging.requestPermission(
       announcement: true,
       criticalAlert: true,
       alert: true,
@@ -426,7 +455,7 @@ class EmergenciaAceita extends StatelessWidget {
       sound: true,
     );
     print('Usuário deu permissão: ${settings.authorizationStatus}');
-    String? token = await firebaseMessaging.getToken();
+    final String? token = await firebaseMessaging.getToken();
     print('Token: $token');
   }
 
@@ -442,7 +471,6 @@ class EmergenciaAceita extends StatelessWidget {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -451,10 +479,10 @@ class EmergenciaAceita extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<String?>(
-        future: getNomeFromUID(uid),
+        future: getNomeFromUID(widget.uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            String nome = snapshot.data!;
+            final String nome = snapshot.data!;
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -468,10 +496,10 @@ class EmergenciaAceita extends StatelessWidget {
                     ),
                   ),
                   FutureBuilder<String?>(
-                    future: getEnderecoFromUID(uid),
+                    future: getEnderecoFromUID(widget.uid),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        String endereco = snapshot.data!;
+                        final String endereco = snapshot.data!;
                         return Text(
                           "Endereço: $endereco",
                           textAlign: TextAlign.center,
@@ -488,10 +516,10 @@ class EmergenciaAceita extends StatelessWidget {
                     },
                   ),
                   FutureBuilder<String?>(
-                    future: getTelefoneFromUID(uid),
+                    future: getTelefoneFromUID(widget.uid),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        String telefone = snapshot.data!;
+                        final String telefone = snapshot.data!;
                         return Text(
                           "Telefone: $telefone",
                           textAlign: TextAlign.center,
@@ -508,14 +536,17 @@ class EmergenciaAceita extends StatelessWidget {
                     },
                   ),
                   ElevatedButton(
-                    onPressed: () => sendLocationToFlutter(),
+                    onPressed: () {
+                      sendLocationToFirestore();
+                      checkAndNavigate(navigatorKey);
+                    },
                     child: const Text(
                       "Enviar Localização",
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ],
-              )
+              ),
             );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
