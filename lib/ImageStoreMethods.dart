@@ -13,14 +13,15 @@ class ImageStoreMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<String> imageToStorage(Uint8List file) async {
+
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
     String uid = user!.uid;
     String id = const Uuid().v4();
     Reference ref =
-        _storage.ref().child('imagens').child('$uid.jpeg');
+    _storage.ref().child('imagens').child('$uid.jpeg');
     UploadTask uploadTask = ref.putData(
-      file
+        file
     );
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
@@ -28,9 +29,9 @@ class ImageStoreMethods {
   }
 
   Future<String> uploadPost(String dados, String nome, String telefone, Uint8List file) async{
+    await auth.signOut(); // Sign out current user
     String res = 'Ocorreu um erro';
     try {
-
       UserCredential userCredential = await auth.signInAnonymously();
       User? user = userCredential.user;
       String uid = user!.uid;
@@ -53,7 +54,6 @@ class ImageStoreMethods {
         _firestore.collection('emergencias').doc().set(post.toJson(),);
         res = 'sucesso';
       }
-
     } catch (err){
       res = err.toString();
     }
