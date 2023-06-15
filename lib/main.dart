@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'emergencia.dart';
-import 'classific.dart';
 import 'firebase_options.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -59,27 +58,6 @@ class MyApp extends StatelessWidget {
                 color: Colors.yellow,
               ),
               label: const Text('Solicitar Emergência'),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(60),
-            alignment: Alignment.center,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Classific()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(80),
-                backgroundColor: Colors.blueGrey,
-              ),
-              icon: const Icon(
-                Icons.star_rate,
-                color: Colors.yellow,
-              ),
-              label: const Text('Classificar atendimento'),
             ),
           ),
         ],
