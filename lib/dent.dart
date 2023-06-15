@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:socorrista1/LocationData.dart';
+import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class Dent extends StatelessWidget {
@@ -22,16 +22,16 @@ class Dent extends StatelessWidget {
           title: const Text('Lista dos Dentistas'),
           centerTitle: true,
         ),
-        body: Column(
+        body: const Column(
           children: [
             LinearProgressIndicator(),
-            const SizedBox(height: 10),
-            const Text(
+            SizedBox(height: 10),
+            Text(
               'Estamos procurando profissionais para te auxiliar...',
               style: TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 10),
-            const Expanded(child: DentWidget()),
+            SizedBox(height: 10),
+            Expanded(child: DentWidget()),
           ],
         ),
       ),
@@ -43,10 +43,10 @@ class DentWidget extends StatefulWidget {
   const DentWidget({Key? key}) : super(key: key);
 
   @override
-  _DentWidgetState createState() => _DentWidgetState();
+  DentWidgetState createState() => DentWidgetState();
 }
 
-class _DentWidgetState extends State<DentWidget> {
+class DentWidgetState extends State<DentWidget> {
   Stream<List<String>>? fetchDataStream;
 
   @override
@@ -156,7 +156,7 @@ class _DentWidgetState extends State<DentWidget> {
 class DentistDetailsScreen extends StatelessWidget {
   final String uid;
 
-  const DentistDetailsScreen({Key? key, required this.uid});
+  const DentistDetailsScreen({Key? key, required this.uid}) : super(key: key);
 
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance

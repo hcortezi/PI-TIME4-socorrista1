@@ -1,10 +1,11 @@
+
 class Post {
   final String dados;
   final String nome;
   final String telefone;
   final String postID;
-  final dataPublicada;
-  final status;
+  final DateTime dataPublicada;
+  final bool status;
   final String postURL;
   final String token;
 

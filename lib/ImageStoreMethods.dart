@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socorrista1/post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +16,6 @@ class ImageStoreMethods {
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
     String uid = user!.uid;
-    String id = const Uuid().v4();
     Reference ref =
     _storage.ref().child('imagens').child('$uid.jpeg');
     UploadTask uploadTask = ref.putData(
@@ -40,7 +38,6 @@ class ImageStoreMethods {
         String token = fcmtoken;
         String photoURL =
         await imageToStorage(file);
-        String postID = const Uuid().v4();
         Post post = Post(
           dados: dados,
           nome: nome,

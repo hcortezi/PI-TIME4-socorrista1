@@ -5,7 +5,6 @@ import 'package:socorrista1/utilitario.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:socorrista1/ImageStoreMethods.dart';
 import 'dent.dart';
-import 'package:connectivity/connectivity.dart';
 
 
 void main() async {
@@ -52,12 +51,9 @@ class _EmergenciaState extends State<Emergencia> {
         setState(() {
           _isLoading = false;
         });
-        showSnackBar(res, context);
       }
-
       return res;
     } catch (err) {
-      showSnackBar(err.toString(), context);
       return '';
     }
   }
@@ -226,7 +222,7 @@ class _EmergenciaState extends State<Emergencia> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Dent(),
+                                builder: (context) => const Dent(),
                               ),
                             );
                           });
