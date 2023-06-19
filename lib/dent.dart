@@ -10,6 +10,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:path/path.dart';
 import 'package:socorrista1/classific.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -326,9 +328,12 @@ class EmergenciaAceita extends StatefulWidget {
 }
 
 class _EmergenciaAceitaState extends State<EmergenciaAceita> {
+  late GoogleMapController mapController;
+  LatLng? currentLocation;
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
 
-  void checkAndNavigate() async {
+  void checkAndNavigate(BuildContext context) async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     final FirebaseAuth auth = FirebaseAuth.instance;
     UserCredential userCredential = await auth.signInAnonymously();
@@ -343,8 +348,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
           .get();
 
       if (snapshot.docs.isNotEmpty) {
-        // Document matching the criteria is found
-        timer.cancel(); // Stop the periodic timer
+        timer.cancel();
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const Classific()),
         );
@@ -411,6 +415,13 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
+  Future<LatLng> gMaps() async {
+    final Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+      return LatLng(position.latitude, position.longitude);
+  }
+
   void sendLocationToFirestore() async {
     final LocationData? location = await getLocation();
 
@@ -466,6 +477,20 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
       print('App aperto da background msg: ${message.notification?.body}');
       // Handle the opened app from background message here
     });
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+    final marker = Marker(
+      markerId: const MarkerId('Você'),
+      position: currentLocation!,
+      icon: BitmapDescriptor.defaultMarker,
+    );
+
+    setState(() {
+      markers[const MarkerId('você')] = marker;
+    });
+
   }
 
   @override
@@ -533,14 +558,29 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                     },
                   ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async{
                       sendLocationToFirestore();
-                      checkAndNavigate();
+                      checkAndNavigate(context);
+                      final LatLng loc  = await gMaps();
+                      currentLocation = loc;
                     },
                     child: const Text(
                       "Enviar Localização",
                       textAlign: TextAlign.center,
                     ),
+                  ),
+                  SizedBox(
+                    height: 250,
+                    child: currentLocation != null
+                        ? GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: currentLocation!,
+                        zoom: 14.0,
+                      ),
+                      markers: markers.values.toSet(),
+                    )
+                        : const CircularProgressIndicator(),
                   ),
                 ],
               ),

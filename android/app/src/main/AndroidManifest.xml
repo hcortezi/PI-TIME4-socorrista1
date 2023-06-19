@@ -9,6 +9,8 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         >
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAvpCd8k30v-dy9hhNiuywCpqcr7IEsMdM"/>
         <service
             android:name="io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService"
             android:exported="false">

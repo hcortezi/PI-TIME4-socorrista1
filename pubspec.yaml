@@ -50,7 +50,7 @@ dependencies:
   permission_handler:
   geolocator:
   cached_network_image:
-  google_maps_flutter: ^2.3.0
+  google_maps_flutter: ^2.3.1
   firebase_core_dart: ^1.0.1
 
 

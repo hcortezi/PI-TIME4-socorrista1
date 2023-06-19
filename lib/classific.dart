@@ -73,7 +73,7 @@ class _ClassificState extends State<Classific> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             TextFormField(
-              controller: q1Controller, // Link controller to the text form field
+              controller: q1Controller,
               decoration: const InputDecoration(
                 hintText: 'Nota de 0 a 5',
               ),
@@ -88,7 +88,7 @@ class _ClassificState extends State<Classific> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             TextFormField(
-              controller: q2Controller, // Link controller to the text form field
+              controller: q2Controller,
               decoration: const InputDecoration(
                 hintText: '',
               ),
@@ -99,7 +99,7 @@ class _ClassificState extends State<Classific> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             TextFormField(
-              controller: q3Controller, // Link controller to the text form field
+              controller: q3Controller,
               decoration: const InputDecoration(
                 hintText: 'Nota de 0 a 5',
               ),
@@ -114,7 +114,7 @@ class _ClassificState extends State<Classific> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             TextFormField(
-              controller: q4Controller, // Link controller to the text form field
+              controller: q4Controller,
               decoration: const InputDecoration(
                 hintText: '',
               ),
