@@ -12,21 +12,18 @@ class ImageStoreMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<String> imageToStorage(Uint8List file) async {
-
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
     String uid = user!.uid;
-    Reference ref =
-    _storage.ref().child('imagens').child('$uid.jpeg');
-    UploadTask uploadTask = ref.putData(
-        file
-    );
+    Reference ref = _storage.ref().child('imagens').child('$uid.jpeg');
+    UploadTask uploadTask = ref.putData(file);
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
     return downloadUrl;
   }
 
-  Future<String> uploadPost(String dados, String nome, String telefone, Uint8List file) async{
+  Future<String> uploadPost(
+      String dados, String nome, String telefone, Uint8List file) async {
     await auth.signOut();
     String res = 'Ocorreu um erro';
     try {
@@ -36,8 +33,7 @@ class ImageStoreMethods {
       String? fcmtoken = await messaging.getToken();
       if (fcmtoken != null) {
         String token = fcmtoken;
-        String photoURL =
-        await imageToStorage(file);
+        String photoURL = await imageToStorage(file);
         Post post = Post(
           dados: dados,
           nome: nome,
@@ -48,10 +44,12 @@ class ImageStoreMethods {
           token: token,
           status: false,
         );
-        _firestore.collection('emergencias').doc().set(post.toJson(),);
+        _firestore.collection('emergencias').doc().set(
+              post.toJson(),
+            );
         res = 'sucesso';
       }
-    } catch (err){
+    } catch (err) {
       res = err.toString();
     }
     return res;

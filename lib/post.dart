@@ -1,4 +1,3 @@
-
 class Post {
   final String dados;
   final String nome;
@@ -8,7 +7,6 @@ class Post {
   final bool status;
   final String postURL;
   final String token;
-
 
   const Post({
     required this.dados,
@@ -22,14 +20,13 @@ class Post {
   });
 
   Map<String, dynamic> toJson() => {
-    "dados": dados,
-    "nome": nome,
-    "telefone": telefone,
-    "postID": postID,
-    "dataPublicada": dataPublicada,
-    "status": status,
-    "postURL": postURL,
-    "token": token,
-
-  };
+        "dados": dados,
+        "nome": nome,
+        "telefone": telefone,
+        "postID": postID,
+        "dataPublicada": dataPublicada,
+        "status": status,
+        "postURL": postURL,
+        "token": token,
+      };
 }

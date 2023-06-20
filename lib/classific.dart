@@ -4,13 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:socorrista1/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class Classific extends StatefulWidget {
   const Classific({Key? key}) : super(key: key);
 
   @override
   State<Classific> createState() => _ClassificState();
 }
+
 final TextEditingController q1Controller = TextEditingController();
 final TextEditingController q2Controller = TextEditingController();
 final TextEditingController q3Controller = TextEditingController();
@@ -121,12 +121,12 @@ class _ClassificState extends State<Classific> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed:(){
-                sendFirestore;
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyApp()));
-              } ,
-              child: const Text('Enviar')
-            ),
+                onPressed: () {
+                  sendFirestore;
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const MyApp()));
+                },
+                child: const Text('Enviar')),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {

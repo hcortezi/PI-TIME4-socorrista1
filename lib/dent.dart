@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -187,8 +185,8 @@ class DentistDetailsScreen extends StatelessWidget {
         .get()
         .then((querySnapshot) {
       for (var document in querySnapshot.docs) {
-        document.reference.update({'status': true, 'dentistas': uidD})
-            .then((value) {
+        document.reference
+            .update({'status': true, 'dentistas': uidD}).then((value) {
           print('Emergencia atualizada com sucesso');
         }).catchError((error) {
           print('Erro ao definir dentista: $error');
@@ -199,7 +197,6 @@ class DentistDetailsScreen extends StatelessWidget {
     });
   }
 
-
   Future<String> getCurriculoFromUID(String uid) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -208,7 +205,7 @@ class DentistDetailsScreen extends StatelessWidget {
 
     String id = snapshot.docs.first.id.toString();
     DocumentSnapshot doc =
-    await FirebaseFirestore.instance.collection("users").doc(id).get();
+        await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("curriculo").toString();
   }
 
@@ -232,16 +229,15 @@ class DentistDetailsScreen extends StatelessWidget {
         title: const Text('Detalhes do Dentista'),
         centerTitle: true,
       ),
-      body:
-      FutureBuilder<String>(
+      body: FutureBuilder<String>(
         future: getNomeFromUID(uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             String nome = snapshot.data!;
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
                   Text(
                     nome,
                     textAlign: TextAlign.center,
@@ -281,8 +277,10 @@ class DentistDetailsScreen extends StatelessWidget {
                         String photoUrl = snapshot.data ?? 'N/A';
                         return CachedNetworkImage(
                           imageUrl: photoUrl,
-                          placeholder: (context, url) => const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                           width: 150,
                           height: 150,
                         );
@@ -303,9 +301,7 @@ class DentistDetailsScreen extends StatelessWidget {
                     },
                     child: const Text("ESCOLHER PROFISSIONAL"),
                   ),
-                ]
-              )
-            );
+                ]));
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
@@ -336,6 +332,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     super.initState();
     initializeCurrentLocation();
   }
+
   void initializeCurrentLocation() async {
     final LatLng loc = await gMaps();
     setState(() {
@@ -366,7 +363,6 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     });
   }
 
-
   Future<String?> getEnderecoFromUID(String uid) async {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -375,7 +371,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
 
     final String id = snapshot.docs.first.id.toString();
     final DocumentSnapshot doc =
-    await FirebaseFirestore.instance.collection("users").doc(id).get();
+        await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("endereco").toString();
   }
 
@@ -387,7 +383,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
 
     final String id = snapshot.docs.first.id.toString();
     final DocumentSnapshot doc =
-    await FirebaseFirestore.instance.collection("users").doc(id).get();
+        await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("telefone").toString();
   }
 
@@ -404,10 +400,10 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
-
   Future<LocationData?> getLocation() async {
     try {
-      final LocationPermission permission = await Geolocator.requestPermission();
+      final LocationPermission permission =
+          await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         throw Exception('Permissão de Localização negada');
       }
@@ -429,7 +425,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     final Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
-      return LatLng(position.latitude, position.longitude);
+    return LatLng(position.latitude, position.longitude);
   }
 
   void sendLocationToFirestore() async {
@@ -465,7 +461,8 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
 
   Future<void> initializeFirebaseMessaging() async {
     final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-    final NotificationSettings settings = await firebaseMessaging.requestPermission(
+    final NotificationSettings settings =
+        await firebaseMessaging.requestPermission(
       announcement: true,
       criticalAlert: true,
       alert: true,
@@ -511,13 +508,13 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
       height: 250,
       child: currentLocation != null
           ? GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: currentLocation!,
-          zoom: 14.0,
-        ),
-        markers: markers.values.toSet(),
-      )
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: currentLocation!,
+                zoom: 14.0,
+              ),
+              markers: markers.values.toSet(),
+            )
           : const CircularProgressIndicator(),
     );
   }
@@ -587,7 +584,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                     },
                   ),
                   ElevatedButton(
-                    onPressed: () async{
+                    onPressed: () async {
                       sendLocationToFirestore();
                       checkAndNavigate(context);
                       final LatLng loc = await gMaps();
@@ -595,7 +592,6 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                         currentLocation = loc;
                         showMap = true;
                       });
-
                     },
                     child: const Text(
                       "Enviar Localização",
@@ -617,8 +613,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
   }
 }
 
-
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const Dent());
