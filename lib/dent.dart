@@ -331,6 +331,17 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
   LatLng? currentLocation;
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
+  @override
+  void initState() {
+    super.initState();
+    initializeCurrentLocation();
+  }
+  void initializeCurrentLocation() async {
+    final LatLng loc = await gMaps();
+    setState(() {
+      currentLocation = loc;
+    });
+  }
 
   void checkAndNavigate(BuildContext context) async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -480,16 +491,35 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    final marker = Marker(
-      markerId: const MarkerId('Você'),
-      position: currentLocation!,
-      icon: BitmapDescriptor.defaultMarker,
+    if (currentLocation != null) {
+      final marker = Marker(
+        markerId: const MarkerId('Você'),
+        position: currentLocation!,
+        icon: BitmapDescriptor.defaultMarker,
+      );
+
+      setState(() {
+        markers[const MarkerId('você')] = marker;
+      });
+    }
+  }
+
+  bool showMap = false;
+
+  Widget buildMapWidget() {
+    return SizedBox(
+      height: 250,
+      child: currentLocation != null
+          ? GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: currentLocation!,
+          zoom: 14.0,
+        ),
+        markers: markers.values.toSet(),
+      )
+          : const CircularProgressIndicator(),
     );
-
-    setState(() {
-      markers[const MarkerId('você')] = marker;
-    });
-
   }
 
   @override
@@ -560,27 +590,32 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                     onPressed: () async{
                       sendLocationToFirestore();
                       checkAndNavigate(context);
-                      final LatLng loc  = await gMaps();
-                      currentLocation = loc;
+                      final LatLng loc = await gMaps();
+                      setState(() {
+                        currentLocation = loc;
+                        showMap = true; // Set showMap to true to display the map
+                      });
+
                     },
                     child: const Text(
                       "Enviar Localização",
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(
-                    height: 250,
-                    child: currentLocation != null
-                        ? GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: currentLocation!,
-                        zoom: 14.0,
-                      ),
-                      markers: markers.values.toSet(),
-                    )
-                        : const CircularProgressIndicator(),
-                  ),
+                  showMap ? buildMapWidget() : Container(),
+                  // SizedBox(
+                  //   height: 250,
+                  //   child: currentLocation != null
+                  //       ? GoogleMap(
+                  //     onMapCreated: _onMapCreated,
+                  //     initialCameraPosition: CameraPosition(
+                  //       target: currentLocation!,
+                  //       zoom: 14.0,
+                  //     ),
+                  //     markers: markers.values.toSet(),
+                  //   )
+                  //       : const CircularProgressIndicator(),
+                  // ),
                 ],
               ),
             );
