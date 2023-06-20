@@ -593,7 +593,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                       final LatLng loc = await gMaps();
                       setState(() {
                         currentLocation = loc;
-                        showMap = true; // Set showMap to true to display the map
+                        showMap = true;
                       });
 
                     },
@@ -603,19 +603,6 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                     ),
                   ),
                   showMap ? buildMapWidget() : Container(),
-                  // SizedBox(
-                  //   height: 250,
-                  //   child: currentLocation != null
-                  //       ? GoogleMap(
-                  //     onMapCreated: _onMapCreated,
-                  //     initialCameraPosition: CameraPosition(
-                  //       target: currentLocation!,
-                  //       zoom: 14.0,
-                  //     ),
-                  //     markers: markers.values.toSet(),
-                  //   )
-                  //       : const CircularProgressIndicator(),
-                  // ),
                 ],
               ),
             );

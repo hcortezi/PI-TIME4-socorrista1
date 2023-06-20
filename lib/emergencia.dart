@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:socorrista1/utilitario.dart';
@@ -12,6 +12,7 @@ void showSnackBar(String content) {
   final snackBar = SnackBar(
     content: Text(content),
     behavior: SnackBarBehavior.floating,
+    duration: const Duration(seconds: 2),
   );
   _scaffoldMessengerKey.currentState?.showSnackBar(snackBar);
 }
@@ -205,6 +206,7 @@ class _EmergenciaState extends State<Emergencia> {
                           SizedBox(
                             child: TextField(
                               controller: _nomeController,
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]'))],
                               decoration: const InputDecoration(
                                 hintText: 'Nome:',
                                 border: InputBorder.none,
@@ -215,6 +217,8 @@ class _EmergenciaState extends State<Emergencia> {
                           SizedBox(
                             child: TextField(
                               controller: _telefoneController,
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
+                              keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 hintText: 'Telefone:',
                                 border: InputBorder.none,
