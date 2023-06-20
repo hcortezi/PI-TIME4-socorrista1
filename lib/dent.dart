@@ -11,7 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:path/path.dart';
 import 'package:socorrista1/classific.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
