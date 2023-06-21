@@ -1,6 +1,6 @@
 class LocationData {
-  final double latitude;
-  final double longitude;
+  final double latitude;  // Latitude da localização
+  final double longitude; // Longitude da localização
 
   LocationData({required this.latitude, required this.longitude});
 }

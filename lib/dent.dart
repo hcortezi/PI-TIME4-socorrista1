@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +12,7 @@ import 'package:socorrista1/classific.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+// Classe que representa a tela de listagem dos dentistas disponíveis
 class Dent extends StatelessWidget {
   const Dent({Key? key}) : super(key: key);
 
@@ -42,6 +42,7 @@ class Dent extends StatelessWidget {
   }
 }
 
+// Classe que representa o widget que exibe a lista de dentistas disponíveis
 class DentWidget extends StatefulWidget {
   const DentWidget({Key? key}) : super(key: key);
 
@@ -55,9 +56,10 @@ class DentWidgetState extends State<DentWidget> {
   @override
   void initState() {
     super.initState();
-    fetchDataStream = fetchDentistasFromFirebase();
+    fetchDataStream = fetchDentistasFromFirebase(); // Inicia o stream para buscar dados dos dentistas
   }
 
+  // Método para buscar a lista de dentistas disponíveis no Firestore
   Stream<List<String>> fetchDentistasFromFirebase() {
     final FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
@@ -87,6 +89,7 @@ class DentWidgetState extends State<DentWidget> {
     });
   }
 
+  // Método para buscar o nome de um dentista a partir do seu ID (UID)
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -156,11 +159,13 @@ class DentWidgetState extends State<DentWidget> {
   }
 }
 
+// Classe que representa os detalhes do dentista
 class DentistDetailsScreen extends StatelessWidget {
   final String uid;
 
-  const DentistDetailsScreen({Key? key, required this.uid}) : super(key: key);
+  const DentistDetailsScreen({Key? key, required this.uid}) : super(key: key); //Recebe o uid do dentista
 
+  // Método para buscar o nome de um dentista pelo seu UID
   Future<String> getNomeFromUID(String uid) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -174,6 +179,7 @@ class DentistDetailsScreen extends StatelessWidget {
     }
   }
 
+  // Método para atualizar o status de uma emergência e atribuir um dentista a ela
   void definirEmergencia(String uidD) {
     final FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
@@ -197,6 +203,7 @@ class DentistDetailsScreen extends StatelessWidget {
     });
   }
 
+  // Método para obter o currículo de um dentista pelo seu UID
   Future<String> getCurriculoFromUID(String uid) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -209,6 +216,7 @@ class DentistDetailsScreen extends StatelessWidget {
     return doc.get("curriculo").toString();
   }
 
+  // Método para obter a URL da foto de um dentista pelo seu UID
   Future<String> retrievePhotoUrl(String uid) async {
     final FirebaseStorage storage = FirebaseStorage.instance;
 
@@ -238,6 +246,7 @@ class DentistDetailsScreen extends StatelessWidget {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
+                      // Exibe o nome do dentista
                   Text(
                     nome,
                     textAlign: TextAlign.center,
@@ -251,6 +260,7 @@ class DentistDetailsScreen extends StatelessWidget {
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         String curriculo = snapshot.data!;
+                        // Exibe o currículo do dentista
                         return Text(
                           curriculo,
                           textAlign: TextAlign.center,
@@ -274,7 +284,8 @@ class DentistDetailsScreen extends StatelessWidget {
                       } else if (snapshot.hasError) {
                         return const Text('Dentista sem foto');
                       } else if (snapshot.hasData) {
-                        String photoUrl = snapshot.data ?? 'N/A';
+                        String photoUrl = snapshot.data ?? 'N/A'; // Se snapshot.data != null, atribui valor ao photoURL, se null, atribui 'N/A'
+                        // Exibe a foto do dentista
                         return CachedNetworkImage(
                           imageUrl: photoUrl,
                           placeholder: (context, url) =>
@@ -291,6 +302,7 @@ class DentistDetailsScreen extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      // Atribui o dentista à emergência
                       definirEmergencia(uid);
                       Navigator.push(
                         context,
@@ -316,16 +328,17 @@ class DentistDetailsScreen extends StatelessWidget {
 class EmergenciaAceita extends StatefulWidget {
   final String uid;
 
-  const EmergenciaAceita({Key? key, required this.uid}) : super(key: key);
+  const EmergenciaAceita({Key? key, required this.uid}) : super(key: key); // Recebe UID do dentista
 
   @override
-  _EmergenciaAceitaState createState() => _EmergenciaAceitaState();
+  EmergenciaAceitaState createState() => EmergenciaAceitaState();
 }
 
-class _EmergenciaAceitaState extends State<EmergenciaAceita> {
-  late GoogleMapController mapController;
-  LatLng? currentLocation;
-  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+class EmergenciaAceitaState extends State<EmergenciaAceita> {
+  late GoogleMapController mapController; // Controla o widget GoogleMap (permite interações com o mapa)
+  LatLng? currentLocation; // Variável para armazenar Latidude e Longitude, inicialmente null
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{}; // Variável do tipo map, para adicionar marcadores no GoogleMap
+  bool showMap = false; // Variável para indicar se o mapa aparece ou não, inicialmente false
 
   @override
   void initState() {
@@ -333,20 +346,22 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     initializeCurrentLocation();
   }
 
-  void initializeCurrentLocation() async {
-    final LatLng loc = await gMaps();
+
+  Future<void> initializeCurrentLocation() async {
+    final LatLng loc = await gMaps(); // Obtem coordenadas da localização atual
     setState(() {
-      currentLocation = loc;
+      currentLocation = loc; // Atribui as coordenadas à variável currentLocation
     });
   }
 
-  void checkAndNavigate(BuildContext context) async {
+  void checkAndNavigate() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     final FirebaseAuth auth = FirebaseAuth.instance;
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
     String uidS = user!.uid;
 
+    // Repete a busca no Firestore se a emergência foi finalizada a cada 5 segundos
     Timer.periodic(const Duration(seconds: 5), (timer) async {
       final QuerySnapshot snapshot = await firestore
           .collection('emergencias')
@@ -355,14 +370,20 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
           .get();
 
       if (snapshot.docs.isNotEmpty) {
-        timer.cancel();
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const Classific()),
-        );
+        timer.cancel(); // Cancela o timer caso seja finalizada
+        navigateToClassific(); // Envia para tela de Classificar Atendimento
       }
     });
   }
 
+  // Método que envia para tela de Classificar Atendimento
+  void navigateToClassific() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const Classific()),
+    );
+  }
+
+  // Obtém endereço do dentista, através de seu UID
   Future<String?> getEnderecoFromUID(String uid) async {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -375,6 +396,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     return doc.get("endereco").toString();
   }
 
+  // Obtém telefone do dentista, através de seu UID
   Future<String?> getTelefoneFromUID(String uid) async {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -387,6 +409,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     return doc.get("telefone").toString();
   }
 
+  // Obtém nome do dentista, através de seu UID
   Future<String?> getNomeFromUID(String uid) async {
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -400,17 +423,24 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
+  // Obtém localização do socorrista como LocationData (usado para enviar ao Firestore)
   Future<LocationData?> getLocation() async {
     try {
+      // Solicita permissão de localização ao usuário
       final LocationPermission permission =
           await Geolocator.requestPermission();
+
+      // Verifica se a permissão foi negada
       if (permission == LocationPermission.denied) {
         throw Exception('Permissão de Localização negada');
       }
 
+      // Obtém a posição atual do socorrista
       final Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      // Retorna objeto LocationData com as coordenadas de latitude e longitude fornecidas
       return LocationData(
         latitude: position.latitude,
         longitude: position.longitude,
@@ -421,14 +451,18 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
+  // Obtem localização do socorrista como LatLng (usa no no GoogleMap)
   Future<LatLng> gMaps() async {
     final Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
+
     return LatLng(position.latitude, position.longitude);
   }
 
+  // Método que envia a localização ao Firestore
   void sendLocationToFirestore() async {
+    // Obtém a localização atual
     final LocationData? location = await getLocation();
 
     if (location != null) {
@@ -436,10 +470,12 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
       final User? user = auth.currentUser;
       final String? uidS = user?.uid;
 
+      // Extrai lat e long da localização
       final double latitude = location.latitude;
       final double longitude = location.longitude;
 
-      final GeoPoint dados = GeoPoint(latitude, longitude);
+      // Cria objeto GeoPoint com as coordenadas
+      final GeoPoint coord = GeoPoint(latitude, longitude);
 
       FirebaseFirestore.instance
           .collection('emergencias')
@@ -447,7 +483,8 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
           .get()
           .then((querySnapshot) {
         for (final document in querySnapshot.docs) {
-          document.reference.update({'coordenadas': dados}).then((value) {
+          // Atualiza o campo 'coordenadas' do documento com as novas coordenadas
+          document.reference.update({'coordenadas': coord}).then((value) {
             print("Inserido no Firestore");
           }).catchError((error) {
             print("Erro ao atualizar documento: $error");
@@ -459,49 +496,62 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
-  Future<void> initializeFirebaseMessaging() async {
-    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-    final NotificationSettings settings =
-        await firebaseMessaging.requestPermission(
-      announcement: true,
-      criticalAlert: true,
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    print('Usuário deu permissão: ${settings.authorizationStatus}');
-    final String? token = await firebaseMessaging.getToken();
-    print('Token: $token');
-  }
+  Future<Marker> fetchLocationFromFirestore() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    final String? uidS = user?.uid;
 
-  void configureFirebaseMessaging() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Mensagem recebida: ${message.notification?.body}');
-      // Handle the received message here
-    });
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('emergencias')
+        .where('postID', isEqualTo: uidS)
+        .get();
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('App aperto da background msg: ${message.notification?.body}');
-      // Handle the opened app from background message here
-    });
-  }
+    final String id = snapshot.docs.first.id.toString();
+    final DocumentSnapshot doc =
+    await FirebaseFirestore.instance.collection("emergencias").doc(id).get();
 
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-    if (currentLocation != null) {
-      final marker = Marker(
-        markerId: const MarkerId('Você'),
-        position: currentLocation!,
+    if (doc.exists) {
+      final data = doc.data() as Map<String, dynamic>;
+      final locationArray = data['LocalDentista'] as List<dynamic>;
+
+      final latitude = locationArray[0] as double;
+      final longitude = locationArray[1] as double;
+      print(locationArray);
+      final dentMarker = Marker(
+        markerId: const MarkerId('dent'),
+        position: LatLng(latitude,longitude),
         icon: BitmapDescriptor.defaultMarker,
       );
+      markers[const MarkerId('dent')] = dentMarker;
 
+      return dentMarker;
+    }
+    return Marker(markerId: MarkerId('nada'));
+  }
+
+
+  void _onMapCreated(GoogleMapController controller) async {
+    // Armazena o controlador do Google Map
+    mapController = controller;
+
+    // Verifica se a localização atual está disponível
+    if (currentLocation != null) {
+      // Cria um marcador para a localização atual
+      final marker = Marker(
+        markerId: const MarkerId('Você'),
+        position: currentLocation!, // Posição do marcador (localização atual)
+        icon: BitmapDescriptor.defaultMarker,
+      );
+      // final Marker dentMarker = await fetchLocationFromFirestore();
+
+      // Atualiza o estado do widget com o novo marcador
       setState(() {
         markers[const MarkerId('você')] = marker;
+        // markers[const MarkerId('dent')] = dentMarker;
+
       });
     }
   }
-
-  bool showMap = false;
 
   Widget buildMapWidget() {
     return SizedBox(
@@ -513,7 +563,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                 target: currentLocation!,
                 zoom: 14.0,
               ),
-              markers: markers.values.toSet(),
+        markers: markers.values.toSet(),
             )
           : const CircularProgressIndicator(),
     );
@@ -586,7 +636,7 @@ class _EmergenciaAceitaState extends State<EmergenciaAceita> {
                   ElevatedButton(
                     onPressed: () async {
                       sendLocationToFirestore();
-                      checkAndNavigate(context);
+                      checkAndNavigate();
                       final LatLng loc = await gMaps();
                       setState(() {
                         currentLocation = loc;

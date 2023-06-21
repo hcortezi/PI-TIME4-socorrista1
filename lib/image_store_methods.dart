@@ -12,12 +12,19 @@ class ImageStoreMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<String> imageToStorage(Uint8List file) async {
+    // Login anônimo do usuário
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
     String uid = user!.uid;
+
+    // Referência de onde será armazenada a foto no Firebase Storage
     Reference ref = _storage.ref().child('imagens').child('$uid.jpeg');
+
+    // Upload da foto no Storage
     UploadTask uploadTask = ref.putData(file);
     TaskSnapshot snapshot = await uploadTask;
+
+    // URL da foto
     String downloadUrl = await snapshot.ref.getDownloadURL();
     return downloadUrl;
   }
@@ -33,7 +40,10 @@ class ImageStoreMethods {
       String? fcmtoken = await messaging.getToken();
       if (fcmtoken != null) {
         String token = fcmtoken;
+        // Upload da foto para o Storage e seu URL
         String photoURL = await imageToStorage(file);
+
+        // Criação do Post com informações
         Post post = Post(
           dados: dados,
           nome: nome,
@@ -44,9 +54,12 @@ class ImageStoreMethods {
           token: token,
           status: false,
         );
+
+        // Armazena o objeto Post na coleção emergencias no Database
         _firestore.collection('emergencias').doc().set(
-              post.toJson(),
-            );
+          post.toJson(),
+        );
+
         res = 'sucesso';
       }
     } catch (err) {

@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa o Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -26,6 +28,7 @@ class MyApp extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          // Título
           Text(
             "Bem vindo ao SOS Dental",
             textAlign: TextAlign.center,
@@ -43,6 +46,7 @@ class MyApp extends StatelessWidget {
                 backgroundColor: Colors.red,
               ),
               onPressed: () {
+                // Navega para a página de emergência ao pressionar o botão
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const Emergencia()),

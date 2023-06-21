@@ -7,8 +7,10 @@ import 'package:socorrista1/image_store_methods.dart';
 import 'dent.dart';
 
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
+GlobalKey<ScaffoldMessengerState>();
 
+
+  //SnackBar com duração de 2 segundos
 void showSnackBar(String content) {
   final snackBar = SnackBar(
     content: Text(content),
@@ -32,16 +34,16 @@ class Emergencia extends StatefulWidget {
 }
 
 class _EmergenciaState extends State<Emergencia> {
-  Uint8List? _file;
+  Uint8List? _file; // Variável para armazenar a imagem selecionada
   final TextEditingController _dadosController = TextEditingController();
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _telefoneController = TextEditingController();
 
-  bool _isLoading = false;
+  bool _isLoading = false; // Indica se o envio da foto está sendo executado ou não
 
   Future<String> postImage() async {
     setState(() {
-      _isLoading = true;
+      _isLoading = true; // Define o estado para carregando
     });
 
     try {
@@ -54,28 +56,29 @@ class _EmergenciaState extends State<Emergencia> {
 
       if (res == 'sucesso') {
         setState(() {
-          _isLoading = false;
+          _isLoading = false; // Define o estado como não carregando
         });
-        clearImage();
-        clearText();
+        clearImage(); // Limpa a imagem selecionada
+        clearText(); // Limpa os campos de texto
       } else {
         setState(() {
-          _isLoading = false;
+          _isLoading = false; // Define o estado como não carregando
         });
       }
       return res;
     } catch (err) {
-      showSnackBar(err.toString());
+      showSnackBar(err.toString()); // Mostra uma mensagem de erro em caso de falha
       return '';
     }
   }
 
   void clearImage() {
     setState(() {
-      _file = null;
+      _file = null; // Limpa a imagem selecionada
     });
   }
 
+  // Limpa as caixas de texto
   void clearText() {
     _dadosController.clear();
     _nomeController.clear();
@@ -95,10 +98,10 @@ class _EmergenciaState extends State<Emergencia> {
               onPressed: () async {
                 Navigator.of(context).pop();
                 Uint8List file = await pickImage(
-                  ImageSource.camera,
+                  ImageSource.camera, // Source do image picker como câmera
                 );
                 setState(() {
-                  _file = file;
+                  _file = file; // Define a imagem selecionada
                 });
               },
             ),
@@ -115,7 +118,9 @@ class _EmergenciaState extends State<Emergencia> {
     );
   }
 
-  @override
+
+
+@override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "main",
@@ -127,6 +132,7 @@ class _EmergenciaState extends State<Emergencia> {
             centerTitle: true,
           ),
           body: _file == null
+              // Se _file (foto) == null, então...
               ? Column(
                   children: [
                     const SizedBox(
@@ -160,6 +166,7 @@ class _EmergenciaState extends State<Emergencia> {
                     ),
                   ],
                 )
+              // Se _file(foto) != null, então...
               : SingleChildScrollView(
                   child: Builder(
                     builder: (BuildContext context) {
@@ -167,7 +174,9 @@ class _EmergenciaState extends State<Emergencia> {
                         child: Column(
                           children: [
                             _isLoading
+                                // Se _isLoading true...
                                 ? const LinearProgressIndicator()
+                                // Se _isLoading false...
                                 : const Padding(
                                     padding: EdgeInsets.only(
                                       top: 0,
@@ -207,7 +216,7 @@ class _EmergenciaState extends State<Emergencia> {
                                     controller: _nomeController,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
-                                          RegExp(r'[a-zA-Z]'))
+                                          RegExp(r'[a-zA-Z ]'))
                                     ],
                                     decoration: const InputDecoration(
                                       hintText: 'Nome:',
