@@ -6,33 +6,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class ImageStoreMethods {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseMessaging messaging = FirebaseMessaging.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance; // Instância do Storage para armazenamento da foto do socorrista.
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Instância do Firestore para interação com o Firestore.
+  final FirebaseMessaging messaging = FirebaseMessaging.instance; // Instância do Messaging para envio e recebimento de mensagens.
+  final FirebaseAuth auth = FirebaseAuth.instance; // Instância do Auth para autenticação do socorrista.
+
 
   Future<String> imageToStorage(Uint8List file) async {
-    // Login anônimo do usuário
+    // Login anônimo do socorrista
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
-    String uid = user!.uid;
+    String uid = user!.uid; // Obtém UID do socorrista
 
-    // Referência de onde será armazenada a foto no Firebase Storage
+    // Referência de onde será armazenada a foto no Storage, baseada no UID do usuário e na extensão ('jpeg').
     Reference ref = _storage.ref().child('imagens').child('$uid.jpeg');
 
     // Upload da foto no Storage
-    UploadTask uploadTask = ref.putData(file);
-    TaskSnapshot snapshot = await uploadTask;
+    UploadTask uploadTask = ref.putData(file); // Inicia a tarefa de Upload da foto
+
+    TaskSnapshot snapshot = await uploadTask; // Aguarda conclusão do upload e obtém snapshot do resultado
 
     // URL da foto
-    String downloadUrl = await snapshot.ref.getDownloadURL();
+    String downloadUrl = await snapshot.ref.getDownloadURL(); // Obtém URL da foto com base na ref do Storage
     return downloadUrl;
   }
 
   Future<String> uploadPost(
       String dados, String nome, String telefone, Uint8List file) async {
     await auth.signOut();
-    String res = 'Ocorreu um erro';
+    String res = 'Ocorreu um erro'; // Variável de resposta.
     try {
       UserCredential userCredential = await auth.signInAnonymously();
       User? user = userCredential.user;
@@ -55,16 +57,16 @@ class ImageStoreMethods {
           status: false,
         );
 
-        // Armazena o objeto Post na coleção emergencias no Database
+        // Armazena o objeto Post na coleção 'emergencias' no Database
         _firestore.collection('emergencias').doc().set(
           post.toJson(),
         );
 
-        res = 'sucesso';
+        res = 'sucesso'; // Se sucesso, atualiza res para 'sucesso'
       }
     } catch (err) {
-      res = err.toString();
+      res = err.toString(); // Se erro, atualiza res com descrição do erro
     }
-    return res;
+    return res; // Retorna resposta
   }
 }

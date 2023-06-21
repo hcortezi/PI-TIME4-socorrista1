@@ -544,7 +544,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
       );
       // final Marker dentMarker = await fetchLocationFromFirestore();
 
-      // Atualiza o estado do widget com o novo marcador
+      // Atualiza o estado do widget com o marcador
       setState(() {
         markers[const MarkerId('você')] = marker;
         // markers[const MarkerId('dent')] = dentMarker;
