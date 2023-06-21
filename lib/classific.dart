@@ -58,6 +58,35 @@ class _ClassificState extends State<Classific> {
     }
   }
 
+  // Método para garantir que todos campos estejam com informação
+  bool validarResp() {
+    if (q1Controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, insira uma nota de 0 a 5.')),
+      );
+      return false;
+    }
+    if (q2Controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, insira um comentário.')),
+      );
+      return false;
+    }
+    if (q3Controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, insira uma nota de 0 a 5.')),
+      );
+      return false;
+    }
+    if (q4Controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, insira um comentário.')),
+      );
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +118,12 @@ class _ClassificState extends State<Classific> {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^[0-5]$')),
                 ],
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Por favor, insira uma nota de 0 a 5.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               const Text(
@@ -100,6 +135,12 @@ class _ClassificState extends State<Classific> {
                 decoration: const InputDecoration(
                   hintText: '',
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Por favor, insira um comentário.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               const Text(
@@ -115,6 +156,12 @@ class _ClassificState extends State<Classific> {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^[0-5]$')),
                 ],
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Por favor, insira uma nota de 0 a 5.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               const Text(
@@ -126,12 +173,24 @@ class _ClassificState extends State<Classific> {
                 decoration: const InputDecoration(
                   hintText: '',
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Por favor, insira um comentário.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  sendFirestore(); // Enviar os dados da avaliação
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyApp()));
+                  if (validarResp()) {
+                    sendFirestore(); // Enviar os dados da avaliação
+                    // Ao enviar o formulário, retorna para a tela principal
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MyApp()),
+                    );
+                  }
                 },
                 child: const Text('Enviar'),
               ),
@@ -148,7 +207,9 @@ class _ClassificState extends State<Classific> {
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }
+
+

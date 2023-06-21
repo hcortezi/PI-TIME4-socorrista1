@@ -18,13 +18,13 @@ class ImageStoreMethods {
     User? user = userCredential.user;
     String uid = user!.uid; // Obtém UID do socorrista
 
-    // Referência de onde será armazenada a foto no Storage, baseada no UID do usuário e na extensão ('jpeg').
+    // Referência de onde será armazenada a foto no Storage, baseada no UID do socorrista com extensão ('jpeg').
     Reference ref = _storage.ref().child('imagens').child('$uid.jpeg');
 
     // Upload da foto no Storage
     UploadTask uploadTask = ref.putData(file); // Inicia a tarefa de Upload da foto
 
-    TaskSnapshot snapshot = await uploadTask; // Aguarda conclusão do upload e obtém snapshot do resultado
+    TaskSnapshot snapshot = await uploadTask; // Aguarda conclusão da tarefa e obtém snapshot do resultado
 
     // URL da foto
     String downloadUrl = await snapshot.ref.getDownloadURL(); // Obtém URL da foto com base na ref do Storage
@@ -45,7 +45,7 @@ class ImageStoreMethods {
         // Upload da foto para o Storage e seu URL
         String photoURL = await imageToStorage(file);
 
-        // Criação do Post com informações
+        // Criação do Post com informações do socorrista
         Post post = Post(
           dados: dados,
           nome: nome,

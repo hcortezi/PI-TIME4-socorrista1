@@ -12,7 +12,7 @@ import 'package:socorrista1/classific.dart';
 import 'package:socorrista1/location_data.dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-// Classe que representa a tela de listagem dos dentistas disponíveis
+// Classe da tela de listagem dos dentistas disponíveis
 class Dent extends StatelessWidget {
   const Dent({Key? key}) : super(key: key);
 
@@ -42,7 +42,7 @@ class Dent extends StatelessWidget {
   }
 }
 
-// Classe que representa o widget que exibe a lista de dentistas disponíveis
+// Classe do widget que exibe a lista de dentistas disponíveis
 class DentWidget extends StatefulWidget {
   const DentWidget({Key? key}) : super(key: key);
 
@@ -59,7 +59,7 @@ class DentWidgetState extends State<DentWidget> {
     fetchDataStream = fetchDentistasFromFirebase(); // Inicia o stream para buscar dados dos dentistas
   }
 
-  // Método para buscar a lista de dentistas disponíveis no Firestore
+  // Método para buscar a lista de dentistas que aceitaram emergência no Firestore
   Stream<List<String>> fetchDentistasFromFirebase() {
     final FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
@@ -68,12 +68,13 @@ class DentWidgetState extends State<DentWidget> {
       return Stream.error('Usuário não logado');
     }
 
-    String uid = user.uid;
+    String uidS = user.uid; // Obtém uid do socorrista
 
+    // Consulta dos docs
     return FirebaseFirestore.instance
         .collection('emergencias')
         .where('status', isEqualTo: false)
-        .where('postID', isEqualTo: uid)
+        .where('postID', isEqualTo: uidS)
         .snapshots()
         .map((snapshot) {
       List<String> dentistasList = [];
@@ -81,6 +82,7 @@ class DentWidgetState extends State<DentWidget> {
         Map<String, dynamic>? data = snapshot.docs.first.data();
         if (data.containsKey('dentistas')) {
           List<dynamic> dentistasArray = data['dentistas'];
+          // Resultado da consulta mapeado, forma uma lista com uid dos dentistas.
           dentistasList =
               dentistasArray.map((item) => item.toString()).toList();
         }
@@ -90,10 +92,10 @@ class DentWidgetState extends State<DentWidget> {
   }
 
   // Método para buscar o nome de um dentista a partir do seu ID (UID)
-  Future<String> getNomeFromUID(String uid) async {
+  Future<String> getNomeFromUID(String uidD) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: uidD)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -106,16 +108,18 @@ class DentWidgetState extends State<DentWidget> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<String>>(
+      // Atualiza a interface conforme dentistas vão aceitando a emergência
       stream: fetchDentistasFromFirebase(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<String> dentistasList = snapshot.data!;
+          // Se houver dentistas, contrói um list view com eles
           return ListView.builder(
             itemCount: dentistasList.length,
             itemBuilder: (context, index) {
-              String uid = dentistasList[index];
+              String uidD = dentistasList[index];
               return FutureBuilder<String>(
-                future: getNomeFromUID(uid),
+                future: getNomeFromUID(uidD),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     String nome = snapshot.data!;
@@ -128,7 +132,7 @@ class DentWidgetState extends State<DentWidget> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                DentistDetailsScreen(uid: uid),
+                                DentistDetailsScreen(uidD: uidD),
                           ),
                         );
                       },
@@ -161,15 +165,15 @@ class DentWidgetState extends State<DentWidget> {
 
 // Classe que representa os detalhes do dentista
 class DentistDetailsScreen extends StatelessWidget {
-  final String uid;
+  final String uidD;
 
-  const DentistDetailsScreen({Key? key, required this.uid}) : super(key: key); //Recebe o uid do dentista
+  const DentistDetailsScreen({Key? key, required this.uidD}) : super(key: key); //Recebe o uid do dentista
 
   // Método para buscar o nome de um dentista pelo seu UID
-  Future<String> getNomeFromUID(String uid) async {
+  Future<String> getNomeFromUID(String uidD) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: uidD)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -204,10 +208,10 @@ class DentistDetailsScreen extends StatelessWidget {
   }
 
   // Método para obter o currículo de um dentista pelo seu UID
-  Future<String> getCurriculoFromUID(String uid) async {
+  Future<String> getCurriculoFromUID(String uidD) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: uidD)
         .get();
 
     String id = snapshot.docs.first.id.toString();
@@ -217,11 +221,11 @@ class DentistDetailsScreen extends StatelessWidget {
   }
 
   // Método para obter a URL da foto de um dentista pelo seu UID
-  Future<String> retrievePhotoUrl(String uid) async {
+  Future<String> retrievePhotoUrl(String uidD) async {
     final FirebaseStorage storage = FirebaseStorage.instance;
 
     try {
-      Reference ref = storage.ref('dentistas').child('$uid.jpeg');
+      Reference ref = storage.ref('dentistas').child('$uidD.jpeg'); // Pegando referência da foto do dentista
       String url = await ref.getDownloadURL();
       return url;
     } catch (e) {
@@ -238,7 +242,7 @@ class DentistDetailsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<String>(
-        future: getNomeFromUID(uid),
+        future: getNomeFromUID(uidD),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             String nome = snapshot.data!;
@@ -256,7 +260,7 @@ class DentistDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   FutureBuilder<String>(
-                    future: getCurriculoFromUID(uid),
+                    future: getCurriculoFromUID(uidD),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         String curriculo = snapshot.data!;
@@ -277,7 +281,7 @@ class DentistDetailsScreen extends StatelessWidget {
                     },
                   ),
                   FutureBuilder<String>(
-                    future: retrievePhotoUrl(uid),
+                    future: retrievePhotoUrl(uidD),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
@@ -303,11 +307,11 @@ class DentistDetailsScreen extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       // Atribui o dentista à emergência
-                      definirEmergencia(uid);
+                      definirEmergencia(uidD);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EmergenciaAceita(uid: uid),
+                          builder: (context) => EmergenciaAceita(uidD: uidD),
                         ),
                       );
                     },
@@ -326,9 +330,9 @@ class DentistDetailsScreen extends StatelessWidget {
 }
 
 class EmergenciaAceita extends StatefulWidget {
-  final String uid;
+  final String uidD;
 
-  const EmergenciaAceita({Key? key, required this.uid}) : super(key: key); // Recebe UID do dentista
+  const EmergenciaAceita({Key? key, required this.uidD}) : super(key: key); // Recebe UID do dentista
 
   @override
   EmergenciaAceitaState createState() => EmergenciaAceitaState();
@@ -384,10 +388,10 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
   }
 
   // Obtém endereço do dentista, através de seu UID
-  Future<String?> getEnderecoFromUID(String uid) async {
+  Future<String?> getEnderecoFromUID(String uidD) async {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: uidD)
         .get();
 
     final String id = snapshot.docs.first.id.toString();
@@ -397,10 +401,10 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
   }
 
   // Obtém telefone do dentista, através de seu UID
-  Future<String?> getTelefoneFromUID(String uid) async {
+  Future<String?> getTelefoneFromUID(String uidD) async {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: uidD)
         .get();
 
     final String id = snapshot.docs.first.id.toString();
@@ -410,10 +414,10 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
   }
 
   // Obtém nome do dentista, através de seu UID
-  Future<String?> getNomeFromUID(String uid) async {
+  Future<String?> getNomeFromUID(String uidD) async {
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where('uid', isEqualTo: uid)
+        .where('uid', isEqualTo: uidD)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -451,7 +455,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
-  // Obtem localização do socorrista como LatLng (usa no no GoogleMap)
+  // Obtem localização do socorrista como LatLng (usa no GoogleMap)
   Future<LatLng> gMaps() async {
     final Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
@@ -483,7 +487,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
           .get()
           .then((querySnapshot) {
         for (final document in querySnapshot.docs) {
-          // Atualiza o campo 'coordenadas' do documento com as novas coordenadas
+          // Cria o campo 'coordenadas' no documento com as coordenadas do socorrista
           document.reference.update({'coordenadas': coord}).then((value) {
             print("Inserido no Firestore");
           }).catchError((error) {
@@ -496,7 +500,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
-  Future<Marker> fetchLocationFromFirestore() async {
+  Future<LatLng?> fetchLocationFromFirestore() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
     final String? uidS = user?.uid;
@@ -506,29 +510,26 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
         .where('postID', isEqualTo: uidS)
         .get();
 
-    final String id = snapshot.docs.first.id.toString();
-    final DocumentSnapshot doc =
-    await FirebaseFirestore.instance.collection("emergencias").doc(id).get();
+    if (snapshot.docs.isNotEmpty) {
+      final String id = snapshot.docs.first.id;
+      final DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection("emergencias")
+          .doc(id)
+          .get();
 
-    if (doc.exists) {
-      final data = doc.data() as Map<String, dynamic>;
-      final locationArray = data['LocalDentista'] as List<dynamic>;
-
-      final latitude = locationArray[0] as double;
-      final longitude = locationArray[1] as double;
-      print(locationArray);
-      final dentMarker = Marker(
-        markerId: const MarkerId('dent'),
-        position: LatLng(latitude,longitude),
-        icon: BitmapDescriptor.defaultMarker,
-      );
-      markers[const MarkerId('dent')] = dentMarker;
-
-      return dentMarker;
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        if (data.containsKey('LocalDentista')) {
+          final locationData = data['LocalDentista'] as Map<String, dynamic>;
+          final latitude = locationData['latitude'] as double;
+          final longitude = locationData['longitude'] as double;
+          return LatLng(latitude, longitude);
+        }
+      }
     }
-    return Marker(markerId: MarkerId('nada'));
-  }
 
+    return null;
+  }
 
   void _onMapCreated(GoogleMapController controller) async {
     // Armazena o controlador do Google Map
@@ -542,12 +543,17 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
         position: currentLocation!, // Posição do marcador (localização atual)
         icon: BitmapDescriptor.defaultMarker,
       );
-      // final Marker dentMarker = await fetchLocationFromFirestore();
+      final dentLoc = await fetchLocationFromFirestore();
+      final marker2 = Marker(
+        markerId: const MarkerId('Dent'),
+        position: dentLoc!,
+        icon: BitmapDescriptor.defaultMarker,
+      );
 
-      // Atualiza o estado do widget com o marcador
+      // Atualiza o estado do widget com o  marcador
       setState(() {
         markers[const MarkerId('você')] = marker;
-        // markers[const MarkerId('dent')] = dentMarker;
+        markers[const MarkerId('dent')] = marker2;
 
       });
     }
@@ -557,6 +563,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
     return SizedBox(
       height: 250,
       child: currentLocation != null
+      // Se localização não nula, então é criado o mapa
           ? GoogleMap(
               onMapCreated: _onMapCreated,
               initialCameraPosition: CameraPosition(
@@ -565,6 +572,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
               ),
         markers: markers.values.toSet(),
             )
+      // Se localização nula, aparece carregamento circular
           : const CircularProgressIndicator(),
     );
   }
@@ -577,7 +585,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
         centerTitle: true,
       ),
       body: FutureBuilder<String?>(
-        future: getNomeFromUID(widget.uid),
+        future: getNomeFromUID(widget.uidD),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final String nome = snapshot.data!;
@@ -594,7 +602,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
                     ),
                   ),
                   FutureBuilder<String?>(
-                    future: getEnderecoFromUID(widget.uid),
+                    future: getEnderecoFromUID(widget.uidD),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         final String endereco = snapshot.data!;
@@ -614,7 +622,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
                     },
                   ),
                   FutureBuilder<String?>(
-                    future: getTelefoneFromUID(widget.uid),
+                    future: getTelefoneFromUID(widget.uidD),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         final String telefone = snapshot.data!;

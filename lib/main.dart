@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
                 backgroundColor: Colors.red,
               ),
               onPressed: () {
-                // Navega para a página de emergência ao pressionar o botão
+                // Envia para a página de emergência
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const Emergencia()),

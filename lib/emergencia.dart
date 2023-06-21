@@ -7,17 +7,17 @@ import 'package:socorrista1/image_store_methods.dart';
 import 'dent.dart';
 
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-GlobalKey<ScaffoldMessengerState>();
+GlobalKey<ScaffoldMessengerState>(); // Chave global para controlar o widget ScaffolgMessenger
 
 
-  //SnackBar com duração de 2 segundos
+  //SnackBar utilizando chave global, com duração de 2 segundos
 void showSnackBar(String content) {
   final snackBar = SnackBar(
     content: Text(content),
     behavior: SnackBarBehavior.floating,
     duration: const Duration(seconds: 2),
   );
-  _scaffoldMessengerKey.currentState?.showSnackBar(snackBar);
+  _scaffoldMessengerKey.currentState?.showSnackBar(snackBar); // Se estado não nulo, aparece mensagem
 }
 
 void main() async {
@@ -34,7 +34,9 @@ class Emergencia extends StatefulWidget {
 }
 
 class _EmergenciaState extends State<Emergencia> {
-  Uint8List? _file; // Variável para armazenar a imagem selecionada
+  Uint8List? _file; // Variável para armazenar em bytes a imagem selecionada
+
+  // Controladores dos campos de texto
   final TextEditingController _dadosController = TextEditingController();
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _telefoneController = TextEditingController();
@@ -54,13 +56,16 @@ class _EmergenciaState extends State<Emergencia> {
         _file!,
       );
 
+      // Caso envio da imagem der certo
       if (res == 'sucesso') {
         setState(() {
           _isLoading = false; // Define o estado como não carregando
         });
         clearImage(); // Limpa a imagem selecionada
         clearText(); // Limpa os campos de texto
-      } else {
+      }
+      // Caso não
+      else {
         setState(() {
           _isLoading = false; // Define o estado como não carregando
         });
@@ -72,19 +77,21 @@ class _EmergenciaState extends State<Emergencia> {
     }
   }
 
+  // Método para limpar a imagem
   void clearImage() {
     setState(() {
-      _file = null; // Limpa a imagem selecionada
+      _file = null;
     });
   }
 
-  // Limpa as caixas de texto
+  // Método para limpar as caixas de texto
   void clearText() {
     _dadosController.clear();
     _nomeController.clear();
     _telefoneController.clear();
   }
 
+  // Método que mostra diálogo com a opção de tirar foto
   _imageSelect() async {
     return showDialog(
       context: context,
@@ -96,12 +103,13 @@ class _EmergenciaState extends State<Emergencia> {
               padding: const EdgeInsets.all(20),
               child: const Text('Tirar foto'),
               onPressed: () async {
+                // Diálogo fechado, chamada do método pickImage
                 Navigator.of(context).pop();
                 Uint8List file = await pickImage(
                   ImageSource.camera, // Source do image picker como câmera
                 );
                 setState(() {
-                  _file = file; // Define a imagem selecionada
+                  _file = file; // Foto tirada é atribuída a _file
                 });
               },
             ),
@@ -174,7 +182,7 @@ class _EmergenciaState extends State<Emergencia> {
                         child: Column(
                           children: [
                             _isLoading
-                                // Se _isLoading true...
+                                // Se _isLoading true, mostra indicador de progresso
                                 ? const LinearProgressIndicator()
                                 // Se _isLoading false...
                                 : const Padding(
@@ -189,7 +197,7 @@ class _EmergenciaState extends State<Emergencia> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                    image: MemoryImage(_file!),
+                                    image: MemoryImage(_file!), // Mostra a foto
                                     fit: BoxFit.fill,
                                     alignment: FractionalOffset.topCenter,
                                   ),
@@ -216,6 +224,7 @@ class _EmergenciaState extends State<Emergencia> {
                                     controller: _nomeController,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
+                                      // Aceitar apenas letras e espaços no nome
                                           RegExp(r'[a-zA-Z ]'))
                                     ],
                                     decoration: const InputDecoration(
@@ -230,6 +239,7 @@ class _EmergenciaState extends State<Emergencia> {
                                     controller: _telefoneController,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
+                                        // Aceitar apenas números no telefone
                                           RegExp(r'[0-9]'))
                                     ],
                                     keyboardType: TextInputType.number,
@@ -248,9 +258,11 @@ class _EmergenciaState extends State<Emergencia> {
                                 backgroundColor: Colors.red,
                               ),
                               onPressed: () async {
+                                // Se caixas de texto não vazias, chama o método postImage
                                 if ((_nomeController.text.isNotEmpty) &&
                                     (_telefoneController.text.isNotEmpty) &&
                                     (_dadosController.text.isNotEmpty)) {
+                                  // Ao terminar de enviar a foto, envia para página de busca de dentistas
                                   await postImage().whenComplete(() {
                                     Navigator.push(
                                       context,
