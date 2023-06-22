@@ -7,7 +7,7 @@ import 'package:socorrista1/image_store_methods.dart';
 import 'dent.dart';
 
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-GlobalKey<ScaffoldMessengerState>(); // Chave global para controlar o widget ScaffolgMessenger
+GlobalKey<ScaffoldMessengerState>(); // Chave global para controlar o widget ScaffoldMessenger
 
 
   //SnackBar utilizando chave global, com duração de 2 segundos
