@@ -444,6 +444,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
         throw Exception('Permissão de Localização negada');
       }
 
+
       // Obtém a posição atual do socorrista
       final Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
