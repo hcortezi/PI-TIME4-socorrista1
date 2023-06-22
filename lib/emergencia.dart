@@ -17,7 +17,7 @@ void showSnackBar(String content) {
     behavior: SnackBarBehavior.floating,
     duration: const Duration(seconds: 2),
   );
-  _scaffoldMessengerKey.currentState?.showSnackBar(snackBar); // Se estado não nulo, aparece mensagem
+  _scaffoldMessengerKey.currentState?.showSnackBar(snackBar); // Se estado com chave for não nulo, aparece mensagem
 }
 
 void main() async {
