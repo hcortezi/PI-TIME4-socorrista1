@@ -564,6 +564,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
     }
   }
 
+  // Método para pegar a localização do Dentista
   Future<LatLng?> fetchLocationFromFirestore() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
@@ -595,6 +596,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
     return null;
   }
 
+  // Método para construção do Google Map
   void _onMapCreated(GoogleMapController controller) async {
     // Armazena o controlador do Google Map
     mapController = controller;
