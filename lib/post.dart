@@ -1,10 +1,10 @@
 class Post {
-  final String dados; // Dados do socorrista
+  final String dados; // Descrição do problema do socorrista
   final String nome; // Nome do socorrista
   final String telefone; // Telefone do socorrista
-  final String postID; // ID do socorrista
-  final DateTime dataPublicada; // Data de publicação do socorro
-  final bool status; // Status do socorro
+  final String postID; // UID do socorrista
+  final DateTime dataPublicada; // Data de publicação da emergência
+  final bool status; // Status da emergência
   final String postURL; // URL da foto do socorrista
   final String token; // Token do socorrista
 
