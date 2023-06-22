@@ -92,7 +92,7 @@ class _EmergenciaState extends State<Emergencia> {
   }
 
   // Método que mostra diálogo com a opção de tirar foto
-  _imageSelect() async {
+  void _imageSelect() async {
     return showDialog(
       context: context,
       builder: (context) {
