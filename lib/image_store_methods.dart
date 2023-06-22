@@ -16,10 +16,10 @@ class ImageStoreMethods {
     // Login anônimo do socorrista
     UserCredential userCredential = await auth.signInAnonymously();
     User? user = userCredential.user;
-    String uid = user!.uid; // Obtém UID do socorrista
+    String  uidS= user!.uid; // Obtém UID do socorrista
 
     // Referência de onde será armazenada a foto no Storage, baseada no UID do socorrista com extensão ('jpeg').
-    Reference ref = _storage.ref().child('imagens').child('$uid.jpeg');
+    Reference ref = _storage.ref().child('imagens').child('$uidS.jpeg');
 
     // Upload da foto no Storage
     UploadTask uploadTask = ref.putData(file); // Inicia a tarefa de Upload da foto
@@ -38,7 +38,7 @@ class ImageStoreMethods {
     try {
       UserCredential userCredential = await auth.signInAnonymously();
       User? user = userCredential.user;
-      String uid = user!.uid;
+      String uidS = user!.uid;
       String? fcmtoken = await messaging.getToken();
       if (fcmtoken != null) {
         String token = fcmtoken;
@@ -50,7 +50,7 @@ class ImageStoreMethods {
           dados: dados,
           nome: nome,
           telefone: telefone,
-          postID: uid,
+          postID: uidS,
           dataPublicada: DateTime.now(),
           postURL: photoURL,
           token: token,
