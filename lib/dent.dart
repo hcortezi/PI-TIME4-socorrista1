@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -343,13 +345,16 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
   LatLng? currentLocation; // Variável para armazenar Latidude e Longitude, inicialmente null
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{}; // Variável do tipo map, para adicionar marcadores no GoogleMap
   bool showMap = false; // Variável para indicar se o mapa aparece ou não, inicialmente false
+  // Map<PolylineId, Polyline> polylines = {}; // Variável do tipo map, para traçar polyline
+  // PolylinePoints polylinePoints = PolylinePoints();
+  // String googleAPiKey = "AIzaSyAvpCd8k30v-dy9hhNiuywCpqcr7IEsMdM";
 
   @override
   void initState() {
     super.initState();
     initializeCurrentLocation();
+    // getRota();
   }
-
 
   Future<void> initializeCurrentLocation() async {
     final LatLng loc = await gMaps(); // Obtem coordenadas da localização atual
@@ -396,7 +401,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
 
     final String id = snapshot.docs.first.id.toString();
     final DocumentSnapshot doc =
-        await FirebaseFirestore.instance.collection("users").doc(id).get();
+    await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("endereco").toString();
   }
 
@@ -409,7 +414,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
 
     final String id = snapshot.docs.first.id.toString();
     final DocumentSnapshot doc =
-        await FirebaseFirestore.instance.collection("users").doc(id).get();
+    await FirebaseFirestore.instance.collection("users").doc(id).get();
     return doc.get("telefone").toString();
   }
 
@@ -432,7 +437,7 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
     try {
       // Solicita permissão de localização ao usuário
       final LocationPermission permission =
-          await Geolocator.requestPermission();
+      await Geolocator.requestPermission();
 
       // Verifica se a permissão foi negada
       if (permission == LocationPermission.denied) {
@@ -463,6 +468,65 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
 
     return LatLng(position.latitude, position.longitude);
   }
+
+  // getRota() async {
+  //   List<LatLng> coordenadasPolyline = [];
+  //   final Position position = await Geolocator.getCurrentPosition(
+  //     desiredAccuracy: LocationAccuracy.high,
+  //   );
+  //
+  //   final FirebaseAuth auth = FirebaseAuth.instance;
+  //   final User? user = auth.currentUser;
+  //   final String? uidS = user?.uid;
+  //
+  //   final QuerySnapshot snapshot = await FirebaseFirestore.instance
+  //       .collection('emergencias')
+  //       .where('postID', isEqualTo: uidS)
+  //       .get();
+  //
+  //   final String id = snapshot.docs.first.id;
+  //   final DocumentSnapshot doc = await FirebaseFirestore.instance
+  //       .collection("emergencias")
+  //       .doc(id)
+  //       .get();
+  //
+  //   final data = doc.data() as Map<String, dynamic>;
+  //   final locationData = data['LocalDentista'] as Map<String, dynamic>;
+  //   final latitudeD = locationData['latitude'] as double;
+  //   final longitudeD = locationData['longitude'] as double;
+  //
+  //
+  //   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+  //     googleAPiKey,
+  //     PointLatLng(position.latitude, position.longitude),
+  //     PointLatLng(latitudeD, longitudeD),
+  //     travelMode: TravelMode.driving,
+  //   );
+  //
+  //   if (result.points.isNotEmpty) {
+  //     for (var point in result.points) {
+  //       coordenadasPolyline.add(LatLng(point.latitude, point.longitude));
+  //     }
+  //   } else {
+  //     print(result.errorMessage);
+  //   }
+  //   addPolyLine(coordenadasPolyline);
+  //   setState(() {
+  //     polylines = Map<PolylineId, Polyline>.from(polylines);
+  //   });
+  // }
+  //
+  // addPolyLine(List<LatLng> polylineCoordinates) {
+  //   PolylineId id = const PolylineId("poly");
+  //   Polyline polyline = Polyline(
+  //     polylineId: id,
+  //     color: Colors.deepPurpleAccent,
+  //     points: polylineCoordinates,
+  //     width: 8,
+  //   );
+  //   polylines[id] = polyline;
+  //   setState(() {});
+  // }
 
   // Método que envia a localização ao Firestore
   void sendLocationToFirestore() async {
@@ -543,19 +607,38 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
         position: currentLocation!, // Posição do marcador (localização atual)
         icon: BitmapDescriptor.defaultMarker,
       );
+
+      // Pega a localização do dentista pelo Firestore
       final dentLoc = await fetchLocationFromFirestore();
+
+      // Cria um pin com a localização do Dentista
       final marker2 = Marker(
         markerId: const MarkerId('Dent'),
         position: dentLoc!,
         icon: BitmapDescriptor.defaultMarker,
       );
 
-      // Atualiza o estado do widget com o  marcador
+      // Atualiza o estado do widget com os  marcadores
       setState(() {
         markers[const MarkerId('você')] = marker;
         markers[const MarkerId('dent')] = marker2;
 
       });
+
+      // Define os limites para os marcadores
+      final LatLngBounds bounds = LatLngBounds(
+        southwest: LatLng(
+          min(currentLocation!.latitude, dentLoc.latitude),
+          min(currentLocation!.longitude, dentLoc.longitude),
+        ),
+        northeast: LatLng(
+          max(currentLocation!.latitude, dentLoc.latitude),
+          max(currentLocation!.longitude, dentLoc.longitude),
+        ),
+      );
+
+      // Ajusta a câmera para mostrar os marcadores
+      mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
     }
   }
 
@@ -565,13 +648,14 @@ class EmergenciaAceitaState extends State<EmergenciaAceita> {
       child: currentLocation != null
       // Se localização não nula, então é criado o mapa
           ? GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: currentLocation!,
-                zoom: 14.0,
-              ),
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: currentLocation!,
+          zoom: 14.0,
+        ),
         markers: markers.values.toSet(),
-            )
+        // polylines: Set<Polyline>.of(polylines.values),
+      )
       // Se localização nula, aparece carregamento circular
           : const CircularProgressIndicator(),
     );
